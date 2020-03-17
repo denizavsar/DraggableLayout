@@ -7,6 +7,7 @@
         <attr name="draggableBackgroundColor" format="color" />
         <attr name="draggableBackgroundOpacityMin" format="float" />
         <attr name="draggableBackgroundOpacityMax" format="float" />
+        <attr name="draggableTransparentBackground" format="boolean" />
         <attr name="draggableMarginEnabled" format="boolean" />
         <attr name="draggableCorners">
             <flag name="none" value="0" />
@@ -33,6 +34,7 @@
         <attr name="draggableBackgroundColor" />
         <attr name="draggableBackgroundOpacityMin" />
         <attr name="draggableBackgroundOpacityMax" />
+        <attr name="draggableTransparentBackground" />
         <attr name="draggableMarginEnabled" />
         <attr name="draggableCorners" />
         <attr name="draggableDirections" />
@@ -45,6 +47,7 @@
         <attr name="draggableBackgroundColor" />
         <attr name="draggableBackgroundOpacityMin" />
         <attr name="draggableBackgroundOpacityMax" />
+        <attr name="draggableTransparentBackground" />
         <attr name="draggableMarginEnabled" />
         <attr name="draggableCorners" />
         <attr name="draggableDirections" />

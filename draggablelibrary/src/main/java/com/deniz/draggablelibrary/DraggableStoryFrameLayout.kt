@@ -63,9 +63,12 @@ class DraggableStoryFrameLayout @JvmOverloads constructor(
     private var _mBackgroundColorOpacityMax = 255F
     private var _mBackgroundColorOpacityMin = 70F
     private var _mMarginEnabled = true
+    private var _mTransparentBackground = false
 
     private var _mCornersFlag = 0
     private var _mDirectionsFlag = 0
+
+    private var mUserLock = false
 
     init {
         setupAttributes(attrs)
@@ -74,6 +77,8 @@ class DraggableStoryFrameLayout @JvmOverloads constructor(
     }
 
     override fun onInterceptTouchEvent(event: MotionEvent): Boolean {
+        if (mUserLock) return super.onInterceptTouchEvent(event)
+
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 mFirstTouchX = event.rawX
@@ -105,6 +110,8 @@ class DraggableStoryFrameLayout @JvmOverloads constructor(
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        if (mUserLock) return super.onTouchEvent(event)
+
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 mFirstTouchX = event.rawX
@@ -194,17 +201,24 @@ class DraggableStoryFrameLayout @JvmOverloads constructor(
     }
 
     private fun resetUI() {
-        if (_mMarginEnabled && params?.leftMargin != 0) {
-            with(ValueAnimator.ofFloat(params?.leftMargin!!.toFloat(), 0F)) {
-                duration = RESET_ANIMATION_DURATION
-                addUpdateListener {
-                    val value = it.animatedValue as Float
+        val animatorStartValue =
+            if (params != null && params!!.leftMargin != 0 && params!!.rightMargin != 0)
+                params!!.leftMargin.toFloat()
+            else
+                RESET_ANIMATION_DURATION.toFloat()
+
+        with(ValueAnimator.ofFloat(animatorStartValue, 0F)) {
+            duration = RESET_ANIMATION_DURATION
+            addUpdateListener {
+                val value = it.animatedValue as Float
+                if (_mMarginEnabled && params?.leftMargin != 0) {
                     params?.leftMargin = value.toInt()
                     params?.rightMargin = value.toInt()
-                    layoutParams = params
+                    if (params != null) layoutParams = params
                 }
-                start()
+                requestLayout()
             }
+            start()
         }
 
         if (translationY != 0F || translationX != 0F) {
@@ -230,23 +244,28 @@ class DraggableStoryFrameLayout @JvmOverloads constructor(
     }
 
     private fun handleBackgroundColor(distance: Double) {
-        log("D: $distance")
-        var mappedColor =
-            DraggableUtil.map(
-                true,
-                0.0,
-                mWindowMaxDistance,
-                0.0,
-                _mBackgroundColorOpacityMax.toDouble(),
-                distance
+        if (_mTransparentBackground) {
+            activity.window.decorView.setBackgroundColor(
+                Color.parseColor("#00000000")
             )
+        } else {
+            var mappedColor =
+                DraggableUtil.map(
+                    true,
+                    0.0,
+                    mWindowMaxDistance,
+                    0.0,
+                    _mBackgroundColorOpacityMax.toDouble(),
+                    distance
+                )
 
-        if (mappedColor < _mBackgroundColorOpacityMin) mappedColor =
-            _mBackgroundColorOpacityMin.toInt()
+            if (mappedColor < _mBackgroundColorOpacityMin) mappedColor =
+                _mBackgroundColorOpacityMin.toInt()
 
-        activity.window.decorView.setBackgroundColor(
-            Color.parseColor(("#%02X$_mBackgroundColor").format(mappedColor))
-        )
+            activity.window.decorView.setBackgroundColor(
+                Color.parseColor(("#%02X$_mBackgroundColor").format(mappedColor))
+            )
+        }
     }
 
     private fun handleMargins(distance: Double) {
@@ -258,7 +277,7 @@ class DraggableStoryFrameLayout @JvmOverloads constructor(
                 0.0,
                 mWindowHeight,
                 0.0,
-                mWindowWidth / 8.0,
+                mWindowWidth / 5.0,
                 distance
             )
 
@@ -422,6 +441,12 @@ class DraggableStoryFrameLayout @JvmOverloads constructor(
                 _mMarginEnabled
             )
 
+        _mTransparentBackground =
+            styledAttr.getBoolean(
+                R.styleable.DraggableStoryFrameLayout_draggableTransparentBackground,
+                _mTransparentBackground
+            )
+
         _mBackgroundColor =
             if (_mBackgroundColor == "0") "000000"
             else _mBackgroundColor.toUpperCase(Locale.ROOT).substring(2)
@@ -458,6 +483,14 @@ class DraggableStoryFrameLayout @JvmOverloads constructor(
 
     fun setDragListener(listener: DragListener) {
         this.mDragListener = listener
+    }
+
+    fun enableDrag() {
+        mUserLock = false
+    }
+
+    fun disableDrag() {
+        mUserLock = true
     }
 
     interface DragListener {
