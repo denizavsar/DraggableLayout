@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- DRAGGABLE STYLE -->
+
+    <style name="Draggable" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowBackground">@color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="colorPrimary">@color/transparent</item>
+        <item name="colorPrimaryDark">@color/transparent</item>
+        <item name="colorAccent">@color/transparent</item>
+        <item name="actionModeBackground">@color/transparent</item>
+    </style>
+
+    <style name="Draggable.NoActionBar" parent="Draggable">
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <style name="Draggable.FullScreen" parent="Draggable.NoActionBar">
+        <item name="android:windowFullscreen">true</item>
+    </style>
+</resources>

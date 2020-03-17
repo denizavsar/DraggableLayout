@@ -1,0 +1,3 @@
+rootProject.name='Draggable'
+include ':app'
+include ':draggablelibrary'

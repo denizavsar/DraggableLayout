@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="DraggableLayout">
+        <attr name="draggableMinCornerRadius" format="dimension" />
+        <attr name="draggableMaxCornerRadius" format="dimension" />
+        <attr name="draggableDetectionAngle" format="float" />
+        <attr name="draggableBackgroundColor" format="color" />
+        <attr name="draggableBackgroundOpacityMin" format="float" />
+        <attr name="draggableBackgroundOpacityMax" format="float" />
+        <attr name="draggableMarginEnabled" format="boolean" />
+        <attr name="draggableCorners">
+            <flag name="none" value="0" />
+            <flag name="topLeft" value="1" />
+            <flag name="topRight" value="2" />
+            <flag name="bottomLeft" value="4" />
+            <flag name="bottomRight" value="8" />
+            <flag name="all" value="15" />
+        </attr>
+        <attr name="draggableDirections">
+            <flag name="none" value="0" />
+            <flag name="top" value="1" />
+            <flag name="bottom" value="2" />
+            <flag name="left" value="4" />
+            <flag name="right" value="8" />
+            <flag name="all" value="15" />
+        </attr>
+    </declare-styleable>
+
+    <declare-styleable name="DraggableScrollViewLayout" parent="DraggableLayout">
+        <attr name="draggableMinCornerRadius" />
+        <attr name="draggableMaxCornerRadius" />
+        <attr name="draggableDetectionAngle" />
+        <attr name="draggableBackgroundColor" />
+        <attr name="draggableBackgroundOpacityMin" />
+        <attr name="draggableBackgroundOpacityMax" />
+        <attr name="draggableMarginEnabled" />
+        <attr name="draggableCorners" />
+        <attr name="draggableDirections" />
+    </declare-styleable>
+
+    <declare-styleable name="DraggableStoryFrameLayout" parent="DraggableLayout">
+        <attr name="draggableMinCornerRadius" />
+        <attr name="draggableMaxCornerRadius" />
+        <attr name="draggableDetectionAngle" />
+        <attr name="draggableBackgroundColor" />
+        <attr name="draggableBackgroundOpacityMin" />
+        <attr name="draggableBackgroundOpacityMax" />
+        <attr name="draggableMarginEnabled" />
+        <attr name="draggableCorners" />
+        <attr name="draggableDirections" />
+    </declare-styleable>
+</resources>

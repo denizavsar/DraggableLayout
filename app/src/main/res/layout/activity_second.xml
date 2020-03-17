@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.deniz.draggablelibrary.DraggableStoryFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="400dp"
+    android:layout_gravity="bottom|center_horizontal"
+    app:draggableCorners="topLeft|topRight"
+    app:draggableDirections="bottom"
+    app:draggableMaxCornerRadius="40dp"
+    app:draggableMinCornerRadius="10dp"
+    app:draggableMarginEnabled="false"
+    tools:context=".SecondActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/qwe"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@color/primary_color"
+            android:gravity="center"
+            android:text="Enable"
+            android:textColor="#FFF"
+            android:textSize="30sp" />
+
+        <TextView
+            android:id="@+id/zxc"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@color/warning_red"
+            android:gravity="center"
+            android:text="Disable"
+            android:textColor="#FFF"
+            android:textSize="30sp" />
+    </LinearLayout>
+
+
+</com.deniz.draggablelibrary.DraggableStoryFrameLayout>
