@@ -8,6 +8,7 @@
         <attr name="draggableBackgroundOpacityMin" format="float" />
         <attr name="draggableBackgroundOpacityMax" format="float" />
         <attr name="draggableTransparentBackground" format="boolean" />
+        <attr name="draggableMaxMargin" format="dimension" />
         <attr name="draggableMarginEnabled" format="boolean" />
         <attr name="draggableExitAnimation" format="reference" />
         <attr name="draggableCorners">
@@ -36,13 +37,14 @@
         <attr name="draggableBackgroundOpacityMin" />
         <attr name="draggableBackgroundOpacityMax" />
         <attr name="draggableTransparentBackground" />
+        <attr name="draggableMaxMargin" />
         <attr name="draggableMarginEnabled" />
         <attr name="draggableExitAnimation" />
         <attr name="draggableCorners" />
         <attr name="draggableDirections" />
     </declare-styleable>
 
-    <declare-styleable name="DraggableStoryFrameLayout" parent="DraggableLayout">
+    <declare-styleable name="DraggableFrameLayout" parent="DraggableLayout">
         <attr name="draggableMinCornerRadius" />
         <attr name="draggableMaxCornerRadius" />
         <attr name="draggableDetectionAngle" />
@@ -50,6 +52,7 @@
         <attr name="draggableBackgroundOpacityMin" />
         <attr name="draggableBackgroundOpacityMax" />
         <attr name="draggableTransparentBackground" />
+        <attr name="draggableMaxMargin" />
         <attr name="draggableMarginEnabled" />
         <attr name="draggableExitAnimation" />
         <attr name="draggableCorners" />

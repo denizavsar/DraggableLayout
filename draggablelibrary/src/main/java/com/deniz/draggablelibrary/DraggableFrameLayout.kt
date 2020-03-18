@@ -26,7 +26,7 @@ import kotlin.math.sqrt
 private const val RESET_ANIMATION_DURATION = 200L
 private const val TOUCH_OFFSET = 40.0
 
-class DraggableStoryFrameLayout @JvmOverloads constructor(
+class DraggableFrameLayout @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyle: Int = 0
@@ -62,6 +62,7 @@ class DraggableStoryFrameLayout @JvmOverloads constructor(
     private var _mBackgroundColor = ""
     private var _mBackgroundColorOpacityMax = 255F
     private var _mBackgroundColorOpacityMin = 70F
+    private var _mMaxMargin = 0F
     private var _mMarginEnabled = true
     private var _mTransparentBackground = false
 
@@ -294,7 +295,7 @@ class DraggableStoryFrameLayout @JvmOverloads constructor(
                 0.0,
                 mWindowHeight,
                 0.0,
-                mWindowWidth / 5.0,
+                _mMaxMargin.toDouble(),
                 distance
             )
 
@@ -343,6 +344,10 @@ class DraggableStoryFrameLayout @JvmOverloads constructor(
 
             mBasePointX = x
             mBasePointY = y
+
+            if (_mMaxMargin == 0F) {
+                _mMaxMargin = (mWindowWidth / 8.0).toFloat()
+            }
 
             val distance = calculateDistance()
 
@@ -473,6 +478,12 @@ class DraggableStoryFrameLayout @JvmOverloads constructor(
             styledAttr.getResourceId(
                 R.styleable.DraggableStoryFrameLayout_draggableExitAnimation,
                 _mExitAnimation
+            )
+
+        _mMaxMargin =
+            styledAttr.getDimension(
+                R.styleable.DraggableStoryFrameLayout_draggableMaxMargin,
+                _mMaxMargin
             )
 
         _mBackgroundColor =
