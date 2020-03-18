@@ -108,10 +108,8 @@ class DraggableFrameLayout @JvmOverloads constructor(
                     return true
                 }
             }
-            MotionEvent.ACTION_UP -> {
-
-            }
         }
+
         return super.onInterceptTouchEvent(event)
     }
 
@@ -176,163 +174,9 @@ class DraggableFrameLayout @JvmOverloads constructor(
         return true
     }
 
-    private fun shouldHandleTouchEvent(): Boolean {
-        if (abs(mTouchDeltaX) <= TOUCH_OFFSET && abs(mTouchDeltaY) <= TOUCH_OFFSET) return false
-
-        var angle = atan2(mTouchDeltaY, mTouchDeltaX) * 180 / Math.PI
-
-        if (angle < 0.0) angle = 180 + (180 + angle)
-
-        val bottomRight = 90.0 - (_mDraggableAngle / 2)
-        val bottomLeft = 90.0 + (_mDraggableAngle / 2)
-
-        val leftBottom = 180.0 - (_mDraggableAngle / 2) + 0.01
-        val leftTop = 180.0 + (_mDraggableAngle / 2) - 0.01
-
-        val topLeft = 270.0 - (_mDraggableAngle / 2)
-        val topRight = 270.0 + (_mDraggableAngle / 2)
-
-        val rightTop = 360 - (_mDraggableAngle / 2)
-        val rightBottom = (_mDraggableAngle / 2) - 1.0
-
-        when {
-            angle in bottomRight..bottomLeft -> {
-                if (moveBottom()) return true
-            }
-            angle in leftBottom..leftTop -> {
-                if (moveLeft()) return true
-            }
-            angle in topLeft..topRight -> {
-                if (moveTop()) return true
-            }
-            angle > rightTop || angle < rightBottom -> {
-                if (moveRight()) return true
-            }
-        }
-
-        mDragLock = true
-        return false
-    }
-
-    private fun resetUI() {
-        val animatorStartValue =
-            if (params != null && params!!.leftMargin != 0 && params!!.rightMargin != 0)
-                params!!.leftMargin.toFloat()
-            else
-                RESET_ANIMATION_DURATION.toFloat()
-
-        with(ValueAnimator.ofFloat(animatorStartValue, 0F)) {
-            duration = RESET_ANIMATION_DURATION
-            addUpdateListener {
-                val value = it.animatedValue as Float
-                if (_mMarginEnabled && params?.leftMargin != 0) {
-                    params?.leftMargin = value.toInt()
-                    params?.rightMargin = value.toInt()
-                    if (params != null) layoutParams = params
-                }
-                requestLayout()
-            }
-            start()
-        }
-
-        if (translationY != 0F || translationX != 0F) {
-            animate()
-                .translationX(0F)
-                .translationY(0F)
-                .setDuration(RESET_ANIMATION_DURATION)
-                .setListener(object : SimpleAnimatorListener() {
-                    override fun onAnimationEnd(animation: Animator?) {
-                        mDragListener?.onDragFinished()
-                        requestLayout()
-                    }
-                })
-                .start()
-        } else {
-            mDragListener?.onDragFinished()
-        }
-    }
-
-    private fun finish() {
-        mIsFinishing = true
-
-        activity.window.decorView.setBackgroundColor(Color.parseColor("#00FFFFFF"))
-        activity.finish()
-        activity.overridePendingTransition(0, _mExitAnimation)
-    }
-
-    private fun handleBackgroundColor(distance: Double) {
-        if (_mTransparentBackground) {
-            activity.window.decorView.setBackgroundColor(
-                Color.parseColor("#00000000")
-            )
-        } else {
-            var mappedColor =
-                DraggableUtil.map(
-                    true,
-                    0.0,
-                    mWindowMaxDistance,
-                    0.0,
-                    _mBackgroundColorOpacityMax.toDouble(),
-                    distance
-                )
-
-            if (mappedColor < _mBackgroundColorOpacityMin) mappedColor =
-                _mBackgroundColorOpacityMin.toInt()
-
-            activity.window.decorView.setBackgroundColor(
-                Color.parseColor(("#%02X$_mBackgroundColor").format(mappedColor))
-            )
-        }
-    }
-
-    private fun handleMargins(distance: Double) {
-        if (!_mMarginEnabled) return
-
-        val mappedValue =
-            DraggableUtil.map(
-                false,
-                0.0,
-                mWindowHeight,
-                0.0,
-                _mMaxMargin.toDouble(),
-                distance
-            )
-
-        params?.rightMargin = mappedValue
-        params?.leftMargin = mappedValue
-
-        if (params != null) layoutParams = params
-    }
-
-    private fun handleCornerRadius(distance: Double): MutableMap<String, Float> {
-        val mappedValue = DraggableUtil.map(
-            false,
-            0.0,
-            mWindowHeight / 2,
-            _mMinCornerRadius.toDouble(),
-            _mMaxCornerRadius.toDouble(),
-            if (distance > mWindowHeight / 2) mWindowHeight / 2 else distance
-        ).toFloat()
-
-        val corners = mutableMapOf<String, Float>()
-
-        if (allCorners()) {
-            corners["topLeft"] = mappedValue
-            corners["topRight"] = mappedValue
-            corners["bottomLeft"] = mappedValue
-            corners["bottomRight"] = mappedValue
-        } else {
-            corners["topLeft"] = if (topLeftCorner()) mappedValue else 0F
-            corners["topRight"] = if (topRightCorner()) mappedValue else 0F
-            corners["bottomLeft"] = if (bottomLeftCorner()) mappedValue else 0F
-            corners["bottomRight"] = if (bottomRightCorner()) mappedValue else 0F
-        }
-
-        return corners
-    }
-
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
         super.onWindowFocusChanged(hasWindowFocus)
+
         if (hasWindowFocus) {
             params = layoutParams as MarginLayoutParams
 
@@ -344,38 +188,22 @@ class DraggableFrameLayout @JvmOverloads constructor(
             mBasePointX = x
             mBasePointY = y
 
-            if (_mMaxMargin == 0F) {
-                _mMaxMargin = (mWindowWidth / 8.0).toFloat()
-            }
+            if (_mMaxMargin == 0F) _mMaxMargin = (mWindowWidth / 8.0).toFloat()
 
-            val distance = calculateDistance()
+            handleMargins(0.0)
+            handleBackgroundColor(0.0)
 
-            handleMargins(distance)
-            handleBackgroundColor(distance)
             requestLayout()
         }
     }
 
-    private fun calculateDistance(): Double {
-        val positionArray = IntArray(2)
-        getLocationOnScreen(positionArray)
-
-        val distanceX = mBasePointX - positionArray[0].toDouble()
-        val distanceY = mBasePointY - positionArray[1].toDouble()
-
-        return sqrt(distanceX.pow(2) + distanceY.pow(2))
-    }
-
     override fun dispatchDraw(canvas: Canvas) {
-        if (mIsFinishing) {
-            super.dispatchDraw(canvas)
-            return
-        }
-
         val distance = calculateDistance()
 
-        handleMargins(distance)
-        handleBackgroundColor(distance)
+        if (!mIsFinishing) {
+            handleMargins(distance)
+            handleBackgroundColor(distance)
+        }
 
         if (_mMaxCornerRadius == 0F) {
             super.dispatchDraw(canvas)
@@ -407,6 +235,170 @@ class DraggableFrameLayout @JvmOverloads constructor(
         super.dispatchDraw(canvas)
 
         canvas.restoreToCount(count)
+    }
+
+    private fun shouldHandleTouchEvent(): Boolean {
+        if (abs(mTouchDeltaX) <= TOUCH_OFFSET && abs(mTouchDeltaY) <= TOUCH_OFFSET) return false
+
+        var angle = atan2(mTouchDeltaY, mTouchDeltaX) * 180 / Math.PI
+
+        if (angle < 0.0) angle += 360
+
+        val bottomRight = 90.0 - (_mDraggableAngle / 2)
+        val bottomLeft = 90.0 + (_mDraggableAngle / 2)
+
+        val leftBottom = 180.0 - (_mDraggableAngle / 2) + 0.01
+        val leftTop = 180.0 + (_mDraggableAngle / 2) - 0.01
+
+        val topLeft = 270.0 - (_mDraggableAngle / 2)
+        val topRight = 270.0 + (_mDraggableAngle / 2)
+
+        val rightTop = 360 - (_mDraggableAngle / 2)
+        val rightBottom = (_mDraggableAngle / 2) - 1.0
+
+        when {
+            angle in bottomRight..bottomLeft -> {
+                if (moveBottom()) return true
+            }
+            angle in leftBottom..leftTop -> {
+                if (moveLeft()) return true
+            }
+            angle in topLeft..topRight -> {
+                if (moveTop()) return true
+            }
+            angle > rightTop || angle < rightBottom -> {
+                if (moveRight()) return true
+            }
+        }
+
+        mDragLock = true
+
+        return false
+    }
+
+    private fun calculateDistance(): Double {
+        val positionArray = IntArray(2)
+        getLocationOnScreen(positionArray)
+
+        val distanceX = mBasePointX - positionArray[0].toDouble()
+        val distanceY = mBasePointY - positionArray[1].toDouble()
+
+        return sqrt(distanceX.pow(2) + distanceY.pow(2))
+    }
+
+    private fun handleCornerRadius(distance: Double): MutableMap<String, Float> {
+        val mappedValue = DraggableUtil.map(
+            false,
+            0.0,
+            mWindowHeight / 2,
+            _mMinCornerRadius.toDouble(),
+            _mMaxCornerRadius.toDouble(),
+            if (distance > mWindowHeight / 2) mWindowHeight / 2 else distance
+        ).toFloat()
+
+        val corners = mutableMapOf<String, Float>()
+
+        if (allCorners()) {
+            corners["topLeft"] = mappedValue
+            corners["topRight"] = mappedValue
+            corners["bottomLeft"] = mappedValue
+            corners["bottomRight"] = mappedValue
+        } else {
+            corners["topLeft"] = if (topLeftCorner()) mappedValue else 0F
+            corners["topRight"] = if (topRightCorner()) mappedValue else 0F
+            corners["bottomLeft"] = if (bottomLeftCorner()) mappedValue else 0F
+            corners["bottomRight"] = if (bottomRightCorner()) mappedValue else 0F
+        }
+
+        return corners
+    }
+
+    private fun handleBackgroundColor(distance: Double) {
+        if (_mTransparentBackground) {
+            activity.window.decorView.setBackgroundColor(Color.parseColor("#00000000"))
+        } else {
+            var mappedColor =
+                DraggableUtil.map(
+                    true,
+                    0.0,
+                    mWindowMaxDistance,
+                    0.0,
+                    _mBackgroundColorOpacityMax.toDouble(),
+                    distance
+                )
+
+            if (mappedColor < _mBackgroundColorOpacityMin)
+                mappedColor = _mBackgroundColorOpacityMin.toInt()
+
+            activity.window.decorView.setBackgroundColor(
+                Color.parseColor(("#%02X$_mBackgroundColor").format(mappedColor))
+            )
+        }
+    }
+
+    private fun handleMargins(distance: Double) {
+        if (!_mMarginEnabled || params == null) return
+
+        val mappedValue =
+            DraggableUtil.map(
+                false,
+                0.0,
+                mWindowHeight,
+                0.0,
+                _mMaxMargin.toDouble(),
+                distance
+            )
+
+        params?.rightMargin = mappedValue
+        params?.leftMargin = mappedValue
+
+        layoutParams = params
+    }
+
+    private fun resetUI() {
+        val animatorStartValue =
+            if (params != null && params!!.leftMargin != 0 && params!!.rightMargin != 0)
+                params!!.leftMargin.toFloat()
+            else
+                RESET_ANIMATION_DURATION.toFloat()
+
+        with(ValueAnimator.ofFloat(animatorStartValue, 0F)) {
+            duration = RESET_ANIMATION_DURATION
+            addUpdateListener {
+                val value = it.animatedValue as Float
+                if (params != null && _mMarginEnabled && params?.leftMargin != 0) {
+                    params!!.leftMargin = value.toInt()
+                    params!!.rightMargin = value.toInt()
+                    layoutParams = params
+                }
+                requestLayout()
+            }
+            start()
+        }
+
+        if (translationY != 0F || translationX != 0F) {
+            animate()
+                .translationX(0F)
+                .translationY(0F)
+                .setDuration(RESET_ANIMATION_DURATION)
+                .setListener(object : SimpleAnimatorListener() {
+                    override fun onAnimationEnd(animation: Animator?) {
+                        mDragListener?.onDragFinished()
+                        requestLayout()
+                    }
+                })
+                .start()
+        } else {
+            mDragListener?.onDragFinished()
+        }
+    }
+
+    private fun finish() {
+        mIsFinishing = true
+
+        activity.window.decorView.setBackgroundColor(Color.parseColor("#00FFFFFF"))
+        activity.finish()
+        activity.overridePendingTransition(0, _mExitAnimation)
     }
 
     private fun setupAttributes(attrs: AttributeSet?) {
@@ -461,22 +453,10 @@ class DraggableFrameLayout @JvmOverloads constructor(
                 _mBackgroundColorOpacityMax
             )
 
-        _mMarginEnabled =
-            styledAttr.getBoolean(
-                R.styleable.DraggableFrameLayout_draggableMarginEnabled,
-                _mMarginEnabled
-            )
-
         _mTransparentBackground =
             styledAttr.getBoolean(
                 R.styleable.DraggableFrameLayout_draggableTransparentBackground,
                 _mTransparentBackground
-            )
-
-        _mExitAnimation =
-            styledAttr.getResourceId(
-                R.styleable.DraggableFrameLayout_draggableExitAnimation,
-                _mExitAnimation
             )
 
         _mMaxMargin =
@@ -485,36 +465,33 @@ class DraggableFrameLayout @JvmOverloads constructor(
                 _mMaxMargin
             )
 
+        _mMarginEnabled =
+            styledAttr.getBoolean(
+                R.styleable.DraggableFrameLayout_draggableMarginEnabled,
+                _mMarginEnabled
+            )
+
+        _mExitAnimation =
+            styledAttr.getResourceId(
+                R.styleable.DraggableFrameLayout_draggableExitAnimation,
+                _mExitAnimation
+            )
+
         _mBackgroundColor =
             if (_mBackgroundColor == "0") "000000"
             else _mBackgroundColor.toUpperCase(Locale.ROOT).substring(2)
 
-        if (_mDraggableAngle > 90.0) {
-            Log.wtf(
-                "Draggable",
-                "Angle must be equal or lower than 90.0 degree! Angle set to 90.0"
-            )
-            _mDraggableAngle = 90.0
-        }
-
-        if (_mBackgroundColorOpacityMin < 0.0) {
-            Log.wtf(
-                "Draggable",
-                "Background opacity min must be equal or higher than 0! Background opacity min set to 0"
-            )
-            _mBackgroundColorOpacityMin = 0F
-        }
-
-        if (_mBackgroundColorOpacityMax > 255.0) {
-            Log.wtf(
-                "Draggable",
-                "Background opacity max must be equal or lower than 255! Background opacity max set to 255"
-            )
-            _mBackgroundColorOpacityMax = 255F
-        }
-
         if (_mMinCornerRadius != 0F && _mMaxCornerRadius == 0F)
             _mMaxCornerRadius = _mMinCornerRadius
+
+        DraggableUtil.checkAttributes(
+            _mMinCornerRadius,
+            _mMaxCornerRadius,
+            _mDraggableAngle,
+            _mBackgroundColorOpacityMin,
+            _mBackgroundColorOpacityMax,
+            _mTransparentBackground
+        )
 
         styledAttr.recycle()
     }
@@ -550,6 +527,6 @@ class DraggableFrameLayout @JvmOverloads constructor(
     private fun moveAll() = _mDirectionsFlag or 15 == _mDirectionsFlag
 
     private fun log(s: String) {
-        Log.d("DENIZDD", s)
+        Log.d("Draggable", s)
     }
 }

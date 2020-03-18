@@ -7,8 +7,7 @@
     android:layout_height="match_parent"
     android:layout_gravity="center"
     app:draggableCorners="all"
-    app:draggableDirections="top|bottom"
-    app:draggableMaxCornerRadius="30dp"
+    app:draggableDirections="bottom|left|right"
     tools:context=".SecondActivity">
 
     <LinearLayout
