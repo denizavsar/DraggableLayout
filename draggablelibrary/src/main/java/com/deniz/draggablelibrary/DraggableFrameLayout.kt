@@ -412,77 +412,77 @@ class DraggableFrameLayout @JvmOverloads constructor(
 
     private fun setupAttributes(attrs: AttributeSet?) {
         val styledAttr =
-            context.obtainStyledAttributes(attrs, R.styleable.DraggableStoryFrameLayout)
+            context.obtainStyledAttributes(attrs, R.styleable.DraggableFrameLayout)
 
         _mMinCornerRadius =
             styledAttr.getDimension(
-                R.styleable.DraggableStoryFrameLayout_draggableMinCornerRadius,
+                R.styleable.DraggableFrameLayout_draggableMinCornerRadius,
                 _mMinCornerRadius
             )
 
         _mMaxCornerRadius =
             styledAttr.getDimension(
-                R.styleable.DraggableStoryFrameLayout_draggableMaxCornerRadius,
+                R.styleable.DraggableFrameLayout_draggableMaxCornerRadius,
                 _mMaxCornerRadius
             )
 
         _mDirectionsFlag =
             styledAttr.getInteger(
-                R.styleable.DraggableStoryFrameLayout_draggableDirections,
+                R.styleable.DraggableFrameLayout_draggableDirections,
                 _mDirectionsFlag
             )
 
         _mCornersFlag =
             styledAttr.getInteger(
-                R.styleable.DraggableStoryFrameLayout_draggableCorners,
+                R.styleable.DraggableFrameLayout_draggableCorners,
                 _mCornersFlag
             )
 
         _mDraggableAngle =
-            styledAttr.getFloat(R.styleable.DraggableStoryFrameLayout_draggableDetectionAngle, 90F)
+            styledAttr.getFloat(R.styleable.DraggableFrameLayout_draggableDetectionAngle, 90F)
                 .toDouble()
 
         _mBackgroundColor =
             Integer.toHexString(
                 styledAttr.getColor(
-                    R.styleable.DraggableStoryFrameLayout_draggableBackgroundColor,
+                    R.styleable.DraggableFrameLayout_draggableBackgroundColor,
                     0
                 )
             )
 
         _mBackgroundColorOpacityMin =
             styledAttr.getFloat(
-                R.styleable.DraggableStoryFrameLayout_draggableBackgroundOpacityMin,
+                R.styleable.DraggableFrameLayout_draggableBackgroundOpacityMin,
                 _mBackgroundColorOpacityMin
             )
 
         _mBackgroundColorOpacityMax =
             styledAttr.getFloat(
-                R.styleable.DraggableStoryFrameLayout_draggableBackgroundOpacityMax,
+                R.styleable.DraggableFrameLayout_draggableBackgroundOpacityMax,
                 _mBackgroundColorOpacityMax
             )
 
         _mMarginEnabled =
             styledAttr.getBoolean(
-                R.styleable.DraggableStoryFrameLayout_draggableMarginEnabled,
+                R.styleable.DraggableFrameLayout_draggableMarginEnabled,
                 _mMarginEnabled
             )
 
         _mTransparentBackground =
             styledAttr.getBoolean(
-                R.styleable.DraggableStoryFrameLayout_draggableTransparentBackground,
+                R.styleable.DraggableFrameLayout_draggableTransparentBackground,
                 _mTransparentBackground
             )
 
         _mExitAnimation =
             styledAttr.getResourceId(
-                R.styleable.DraggableStoryFrameLayout_draggableExitAnimation,
+                R.styleable.DraggableFrameLayout_draggableExitAnimation,
                 _mExitAnimation
             )
 
         _mMaxMargin =
             styledAttr.getDimension(
-                R.styleable.DraggableStoryFrameLayout_draggableMaxMargin,
+                R.styleable.DraggableFrameLayout_draggableMaxMargin,
                 _mMaxMargin
             )
 
