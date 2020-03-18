@@ -65,10 +65,15 @@ class DraggableStoryFrameLayout @JvmOverloads constructor(
     private var _mMarginEnabled = true
     private var _mTransparentBackground = false
 
+    private var _mExitAnimation = R.anim.draggable_exit_animation
+
     private var _mCornersFlag = 0
     private var _mDirectionsFlag = 0
 
     private var mUserLock = false
+
+    private var mTouchTimeStart = 0L
+    private var mIsFinishing = false
 
     init {
         setupAttributes(attrs)
@@ -81,6 +86,8 @@ class DraggableStoryFrameLayout @JvmOverloads constructor(
 
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
+                mTouchTimeStart = System.currentTimeMillis()
+
                 mFirstTouchX = event.rawX
                 mFirstTouchY = event.rawY
 
@@ -155,7 +162,14 @@ class DraggableStoryFrameLayout @JvmOverloads constructor(
                 requestLayout()
             }
             MotionEvent.ACTION_UP -> {
-                resetUI()
+                val velocity =
+                    calculateDistance().toInt() / (System.currentTimeMillis() - mTouchTimeStart)
+
+                if (velocity > 0L) {
+                    finish()
+                } else {
+                    resetUI()
+                }
             }
         }
 
@@ -239,8 +253,11 @@ class DraggableStoryFrameLayout @JvmOverloads constructor(
     }
 
     private fun finish() {
+        mIsFinishing = true
+
         activity.window.decorView.setBackgroundColor(Color.parseColor("#00FFFFFF"))
         activity.finish()
+        activity.overridePendingTransition(0, _mExitAnimation)
     }
 
     private fun handleBackgroundColor(distance: Double) {
@@ -346,6 +363,11 @@ class DraggableStoryFrameLayout @JvmOverloads constructor(
     }
 
     override fun dispatchDraw(canvas: Canvas) {
+        if (mIsFinishing) {
+            super.dispatchDraw(canvas)
+            return
+        }
+
         val distance = calculateDistance()
 
         handleMargins(distance)
@@ -445,6 +467,12 @@ class DraggableStoryFrameLayout @JvmOverloads constructor(
             styledAttr.getBoolean(
                 R.styleable.DraggableStoryFrameLayout_draggableTransparentBackground,
                 _mTransparentBackground
+            )
+
+        _mExitAnimation =
+            styledAttr.getResourceId(
+                R.styleable.DraggableStoryFrameLayout_draggableExitAnimation,
+                _mExitAnimation
             )
 
         _mBackgroundColor =
