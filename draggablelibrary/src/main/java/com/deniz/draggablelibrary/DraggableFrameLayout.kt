@@ -16,7 +16,6 @@ import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
 import com.deniz.draggablelibrary.callbacks.SimpleAnimatorListener
 import com.deniz.draggablelibrary.utils.DraggableUtil
-import com.deniz.draggablelibrary.utils.isPositive
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.atan2
@@ -182,7 +181,7 @@ class DraggableFrameLayout @JvmOverloads constructor(
 
         var angle = atan2(mTouchDeltaY, mTouchDeltaX) * 180 / Math.PI
 
-        if (!angle.isPositive()) angle = 180 + (180 + angle)
+        if (angle < 0.0) angle = 180 + (180 + angle)
 
         val bottomRight = 90.0 - (_mDraggableAngle / 2)
         val bottomLeft = 90.0 + (_mDraggableAngle / 2)
