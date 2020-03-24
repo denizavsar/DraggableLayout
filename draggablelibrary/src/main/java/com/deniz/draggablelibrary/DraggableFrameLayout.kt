@@ -33,8 +33,6 @@ class DraggableFrameLayout @JvmOverloads constructor(
 
     private var activity: Activity = (context as Activity)
 
-    private var params: MarginLayoutParams? = null
-
     private var mWindowMaxDistance = 0.0
     private var mWindowHeight = 0.0
     private var mWindowWidth = 0.0
@@ -61,8 +59,8 @@ class DraggableFrameLayout @JvmOverloads constructor(
     private var _mBackgroundColor = ""
     private var _mBackgroundColorOpacityMax = 255F
     private var _mBackgroundColorOpacityMin = 70F
-    private var _mMaxMargin = 0F
-    private var _mMarginEnabled = true
+    private var _mScaleFactor = 0.6
+    private var _mScaleEnabled = true
     private var _mTransparentBackground = false
 
     private var _mExitAnimation = R.anim.draggable_exit_animation
@@ -178,8 +176,6 @@ class DraggableFrameLayout @JvmOverloads constructor(
         super.onWindowFocusChanged(hasWindowFocus)
 
         if (hasWindowFocus) {
-            params = layoutParams as MarginLayoutParams
-
             mWindowHeight = context.resources.displayMetrics.heightPixels.toDouble()
             mWindowWidth = context.resources.displayMetrics.widthPixels.toDouble()
 
@@ -188,9 +184,7 @@ class DraggableFrameLayout @JvmOverloads constructor(
             mBasePointX = x
             mBasePointY = y
 
-            if (_mMaxMargin == 0F) _mMaxMargin = (mWindowWidth / 8.0).toFloat()
-
-            handleMargins(0.0)
+            handleScale(0.0)
             handleBackgroundColor(0.0)
 
             requestLayout()
@@ -201,7 +195,7 @@ class DraggableFrameLayout @JvmOverloads constructor(
         val distance = calculateDistance()
 
         if (!mIsFinishing) {
-            handleMargins(distance)
+            handleScale(distance)
             handleBackgroundColor(distance)
         }
 
@@ -277,11 +271,8 @@ class DraggableFrameLayout @JvmOverloads constructor(
     }
 
     private fun calculateDistance(): Double {
-        val positionArray = IntArray(2)
-        getLocationOnScreen(positionArray)
-
-        val distanceX = mBasePointX - positionArray[0].toDouble()
-        val distanceY = mBasePointY - positionArray[1].toDouble()
+        val distanceX = mBasePointX - x.toDouble()
+        val distanceY = mBasePointY - y.toDouble()
 
         return sqrt(distanceX.pow(2) + distanceY.pow(2))
     }
@@ -336,55 +327,38 @@ class DraggableFrameLayout @JvmOverloads constructor(
         }
     }
 
-    private fun handleMargins(distance: Double) {
-        if (!_mMarginEnabled || params == null) return
+    private fun handleScale(distance: Double) {
+        if (!_mScaleEnabled) return
 
-        val mappedValue =
-            DraggableUtil.map(
-                false,
-                0.0,
-                mWindowHeight,
-                0.0,
-                _mMaxMargin.toDouble(),
-                distance
-            )
+        val mappedValue = DraggableUtil.mapScaleFactor(
+            distance,
+            0.0,
+            mWindowMaxDistance,
+            _mScaleFactor,
+            1.0
+        )
 
-        params?.rightMargin = mappedValue
-        params?.leftMargin = mappedValue
-
-        layoutParams = params
+        scaleX = mappedValue
+        scaleY = mappedValue
     }
 
     private fun resetUI() {
-        val animatorStartValue =
-            if (params != null && params!!.leftMargin != 0 && params!!.rightMargin != 0)
-                params!!.leftMargin.toFloat()
-            else
-                RESET_ANIMATION_DURATION.toFloat()
-
-        with(ValueAnimator.ofFloat(animatorStartValue, 0F)) {
-            duration = RESET_ANIMATION_DURATION
-            addUpdateListener {
-                val value = it.animatedValue as Float
-                if (params != null && _mMarginEnabled && params?.leftMargin != 0) {
-                    params!!.leftMargin = value.toInt()
-                    params!!.rightMargin = value.toInt()
-                    layoutParams = params
-                }
-                requestLayout()
-            }
-            start()
-        }
-
         if (translationY != 0F || translationX != 0F) {
+            with(ValueAnimator.ofFloat(scaleX, 1.0F)) {
+                duration = RESET_ANIMATION_DURATION
+                addUpdateListener { requestLayout() }
+                start()
+            }
+
             animate()
                 .translationX(0F)
                 .translationY(0F)
+                .scaleX(1F)
+                .scaleY(1F)
                 .setDuration(RESET_ANIMATION_DURATION)
                 .setListener(object : SimpleAnimatorListener() {
                     override fun onAnimationEnd(animation: Animator?) {
                         mDragListener?.onDragFinished()
-                        requestLayout()
                     }
                 })
                 .start()
@@ -459,16 +433,16 @@ class DraggableFrameLayout @JvmOverloads constructor(
                 _mTransparentBackground
             )
 
-        _mMaxMargin =
-            styledAttr.getDimension(
-                R.styleable.DraggableFrameLayout_draggableMaxMargin,
-                _mMaxMargin
-            )
+        _mScaleFactor =
+            styledAttr.getFloat(
+                R.styleable.DraggableFrameLayout_draggableScaleFactor,
+                _mScaleFactor.toFloat()
+            ).toDouble()
 
-        _mMarginEnabled =
+        _mScaleEnabled =
             styledAttr.getBoolean(
-                R.styleable.DraggableFrameLayout_draggableMarginEnabled,
-                _mMarginEnabled
+                R.styleable.DraggableFrameLayout_draggableScaleEnabled,
+                _mScaleEnabled
             )
 
         _mExitAnimation =
@@ -490,7 +464,8 @@ class DraggableFrameLayout @JvmOverloads constructor(
             _mDraggableAngle,
             _mBackgroundColorOpacityMin,
             _mBackgroundColorOpacityMax,
-            _mTransparentBackground
+            _mTransparentBackground,
+            _mScaleFactor
         )
 
         styledAttr.recycle()

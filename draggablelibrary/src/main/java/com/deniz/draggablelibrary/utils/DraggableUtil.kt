@@ -22,13 +22,33 @@ object DraggableUtil {
         return mappedValue.toInt()
     }
 
+    fun mapScaleFactor(
+        value: Double,
+        fromMin: Double,
+        fromMax: Double,
+        toMin: Double,
+        toMax: Double
+    ): Float {
+        return try {
+            val leftSpan = fromMax - fromMin
+            val rightSpan = toMax - toMin
+
+            val scaled = (value - fromMin) / leftSpan
+
+            ((toMax - (toMin + (scaled * rightSpan))) + toMin).toString().substring(0, 5).toFloat()
+        } catch (e: Exception) {
+            1F
+        }
+    }
+
     fun checkAttributes(
         minCornerRadius: Float,
         maxCornerRadius: Float,
         angle: Double,
         minBackgroundOpacity: Float,
         maxBackgroundOpacity: Float,
-        transparentBackground: Boolean
+        transparentBackground: Boolean,
+        scaleFactor: Double
     ) {
         if (minCornerRadius < 0F) {
             throw IllegalArgumentException(
@@ -64,6 +84,12 @@ object DraggableUtil {
                     "Minimum background opacity must be equal or lower than maximum background opacity"
                 )
             }
+        }
+
+        if (scaleFactor > 1.0 || scaleFactor < 0.1) {
+            throw IllegalArgumentException(
+                "Scale factor must be between 0.1 and 1.0"
+            )
         }
     }
 }

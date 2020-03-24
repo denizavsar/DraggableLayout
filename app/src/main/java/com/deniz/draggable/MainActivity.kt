@@ -1,9 +1,9 @@
 package com.deniz.draggable
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -11,8 +11,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        findViewById<TextView>(R.id.omg).setOnClickListener {
-            val intent = Intent(this,SecondActivity::class.java)
+        findViewById<TextView>(R.id.normal).setOnClickListener {
+            val intent = Intent(this, NormalActivity::class.java)
+            startActivity(intent)
+        }
+
+        findViewById<TextView>(R.id.scroll).setOnClickListener {
+            val intent = Intent(this, ScrollActivity::class.java)
             startActivity(intent)
         }
     }

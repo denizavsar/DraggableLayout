@@ -10,8 +10,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".SecondActivity"
-            android:theme="@style/Draggable.FullScreen" />
+            android:name=".NormalActivity"
+            android:theme="@style/Draggable.NoActionBar" />
+        <activity
+            android:name=".ScrollActivity"
+            android:screenOrientation="unspecified"
+            android:theme="@style/Draggable.NoActionBar" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -7,7 +7,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 @SuppressLint("ClickableViewAccessibility")
-class SecondActivity : AppCompatActivity() {
+class NormalActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         overridePendingTransition(R.anim.draggable_enter_animation, 0)

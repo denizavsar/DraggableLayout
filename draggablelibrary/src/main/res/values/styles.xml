@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- DRAGGABLE STYLE -->
 
     <style name="Draggable" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:colorBackgroundCacheHint">@null</item>
@@ -20,4 +19,5 @@
     <style name="Draggable.FullScreen" parent="Draggable.NoActionBar">
         <item name="android:windowFullscreen">true</item>
     </style>
+
 </resources>

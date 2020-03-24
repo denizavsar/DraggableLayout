@@ -10,13 +10,20 @@ import android.graphics.Color
 import android.graphics.Path
 import android.graphics.RectF
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.widget.FrameLayout
 import android.widget.ScrollView
 import androidx.core.content.ContextCompat
+import com.deniz.draggablelibrary.callbacks.SimpleAnimatorListener
 import com.deniz.draggablelibrary.utils.DraggableUtil
+import java.util.*
 import kotlin.math.abs
+import kotlin.math.pow
+import kotlin.math.sqrt
 
+private const val RESET_ANIMATION_DURATION = 200L
+private const val TOUCH_OFFSET = 20.0
 
 class DraggableScrollViewLayout @JvmOverloads constructor(
     context: Context,
@@ -24,50 +31,75 @@ class DraggableScrollViewLayout @JvmOverloads constructor(
     defStyle: Int = 0
 ) : FrameLayout(context, attrs, defStyle) {
 
-    private val mResetAnimationDuration = 200L
-    private val mTouchOffset = 20.0
-
-    private var mActivityFinishOffset = 400.0
-
     private var activity: Activity = (context as Activity)
 
     private var scrollView: ScrollView? = null
 
-    private lateinit var params: MarginLayoutParams
-
+    private var mWindowMaxDistance = 0.0
     private var mWindowHeight = 0.0
-    private var mWindowWidth = 0
+    private var mWindowWidth = 0.0
 
     private var mFirstTouchX = -1F
     private var mFirstTouchY = -1F
 
+    private var mTouchDeltaX = -1F
+    private var mTouchDeltaY = -1F
+
     private var mCurrentTouchX = -1F
     private var mCurrentTouchY = -1F
 
-    private var mTouchDeltaX = -1F
-    private var mTouchDeltaY = -1F
+    private var mBasePointX = 0F
+    private var mBasePointY = 0F
+
+    private var mScrollListener: ScrollListener? = null
+    private var mDragListener: DragListener? = null
+
+    private var mDragLock = false
+
+    private var _mMinCornerRadius = 0F
+    private var _mMaxCornerRadius = 0F
+    private var _mDraggableAngle = 0.0
+    private var _mBackgroundColor = ""
+    private var _mBackgroundColorOpacityMax = 255F
+    private var _mBackgroundColorOpacityMin = 70F
+    private var _mScaleFactor = 0.6
+    private var _mScaleEnabled = true
+    private var _mTransparentBackground = false
+
+    private var _mExitAnimation = R.anim.draggable_exit_animation
+
+    private var _mCornersFlag = 0
+    private var _mDirectionsFlag = 0
+
+    private var mUserLock = false
+
+    private var mTouchTimeStart = 0L
+    private var mIsFinishing = false
 
     private var mLastScrollOffset = -1
     private var mModeChangeXOffset = 0F
 
     private var mMode = MODE.SCROLL
 
-    private var mMinCornerRadius = 0F
-    private var mMaxCornerRadius = 0F
-
     init {
         setupAttributes(attrs)
 
-        background = ContextCompat.getDrawable(context, android.R.color.transparent)
-
-        handleBackgroundColor(0)
+        background = ContextCompat.getDrawable(context, R.color.transparent)
     }
 
     override fun onInterceptTouchEvent(event: MotionEvent): Boolean {
+        if (mUserLock) return super.onInterceptTouchEvent(event)
+
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
+                mTouchTimeStart = System.currentTimeMillis()
+
                 mFirstTouchX = event.rawX
                 mFirstTouchY = event.rawY
+
+                mDragLock = false
+
+                mModeChangeXOffset = 0F
 
                 mLastScrollOffset = if (scrollView != null) scrollView!!.scrollY else 0
             }
@@ -78,31 +110,60 @@ class DraggableScrollViewLayout @JvmOverloads constructor(
                 mTouchDeltaX = mCurrentTouchX - mFirstTouchX
                 mTouchDeltaY = mCurrentTouchY - mFirstTouchY
 
-                if (abs(mTouchDeltaY) > mTouchOffset) {
-                    if (!isSwipe()) {
-                        mMode =
-                            if (mTouchDeltaY > 0 && mLastScrollOffset == 0) MODE.DRAG else MODE.SCROLL
+                if (abs(mTouchDeltaX) < TOUCH_OFFSET && abs(mTouchDeltaY) < TOUCH_OFFSET) return false
 
-                        mFirstTouchX = event.rawX
-                        mFirstTouchY = event.rawY
-                        return true
-                    }
+                if (abs(mTouchDeltaY) > abs(mTouchDeltaX)) {
+                    mFirstTouchX = mCurrentTouchX
+                    mFirstTouchY = mCurrentTouchY
+
+                    mMode =
+                        if (mTouchDeltaY > 0 && mLastScrollOffset == 0) {
+                            mDragListener?.onDragStarted(mCurrentTouchX, mCurrentTouchY)
+
+                            MODE.DRAG
+                        } else {
+                            mScrollListener?.onScrollStarted(mCurrentTouchX, mCurrentTouchY)
+
+                            MODE.SCROLL
+                        }
+
+                    return true
                 }
             }
         }
+
         return false
     }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        if (mUserLock) return super.onTouchEvent(event)
+
         when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                mTouchTimeStart = System.currentTimeMillis()
+
+                mFirstTouchX = event.rawX
+                mFirstTouchY = event.rawY
+
+                mDragLock = false
+
+                mModeChangeXOffset = 0F
+
+                mLastScrollOffset = if (scrollView != null) scrollView!!.scrollY else 0
+            }
             MotionEvent.ACTION_MOVE -> {
-                mTouchDeltaX = event.rawX - mFirstTouchX
-                mTouchDeltaY = event.rawY - mFirstTouchY
+                mCurrentTouchX = event.rawX
+                mCurrentTouchY = event.rawY
+
+                mTouchDeltaX = mCurrentTouchX - mFirstTouchX
+                mTouchDeltaY = mCurrentTouchY - mFirstTouchY
 
                 when (mMode) {
                     MODE.SCROLL -> {
                         scrollView?.scrollTo(0, mLastScrollOffset + -mTouchDeltaY.toInt())
+
+                        mScrollListener?.onScroll(scrollView!!.scrollX, scrollView!!.scrollY)
 
                         if (scrollView?.scrollY == 0 && mTouchDeltaY > 0) {
                             mFirstTouchX = event.rawX - mModeChangeXOffset
@@ -111,6 +172,9 @@ class DraggableScrollViewLayout @JvmOverloads constructor(
                             mModeChangeXOffset = 0F
 
                             mMode = MODE.DRAG
+
+                            mScrollListener?.onScrollFinished()
+                            mDragListener?.onDragStarted(mCurrentTouchX, mCurrentTouchY)
                         }
                     }
                     MODE.DRAG -> {
@@ -123,137 +187,76 @@ class DraggableScrollViewLayout @JvmOverloads constructor(
                                 mModeChangeXOffset = mTouchDeltaX
 
                                 mMode = MODE.SCROLL
-                            } else {
-                                translationX = mTouchDeltaX
+
+                                mDragListener?.onDragFinished()
+                                mScrollListener?.onScrollStarted(mCurrentTouchX, mCurrentTouchY)
+                            } else if (moveLeft() || moveRight()) {
+                                translationX = if (mTouchDeltaX > 0 && moveRight()) {
+                                    mTouchDeltaX
+                                } else if (mTouchDeltaX < 0 && moveLeft()) {
+                                    mTouchDeltaX
+                                } else {
+                                    0F
+                                }
+
+                                mDragListener?.onDrag(mCurrentTouchX, mCurrentTouchY)
                             }
                         } else {
-                            translationX = mTouchDeltaX
-                            translationY = mTouchDeltaY
+                            if (!moveAll()) {
+                                if (moveLeft() || moveRight()) {
+                                    translationX = if (mTouchDeltaX > 0 && moveRight()) {
+                                        mTouchDeltaX
+                                    } else if (mTouchDeltaX < 0 && moveLeft()) {
+                                        mTouchDeltaX
+                                    } else {
+                                        0F
+                                    }
+                                }
+                                if (moveBottom()) {
+                                    translationY = if (mTouchDeltaY > 0 && moveBottom()) {
+                                        mTouchDeltaY
+                                    } else {
+                                        0F
+                                    }
+                                }
+                            } else {
+                                translationX = mTouchDeltaX
+                                translationY = mTouchDeltaY
+                            }
 
-                            handleMargins(mTouchDeltaY.toDouble())
-                            handleBackgroundColor(mTouchDeltaY.toInt())
-
-                            requestLayout()
+                            mDragListener?.onDrag(mCurrentTouchX, mCurrentTouchY)
                         }
                     }
                 }
+
+                requestLayout()
             }
             MotionEvent.ACTION_UP -> {
-                if (mMode == MODE.DRAG) {
-                    if (mTouchDeltaY > mActivityFinishOffset) {
-                        activity.window.decorView.setBackgroundColor(Color.parseColor("#00FFFFFF"))
-                        activity.finish()
-                    } else {
-                        resetUI()
-                    }
+                val velocity =
+                    calculateDistance().toInt() / (System.currentTimeMillis() - mTouchTimeStart)
+
+                if (velocity > 0L) {
+                    finish()
                 } else {
                     resetUI()
                 }
-
-                mModeChangeXOffset = 0F
-            }
-        }
-        return super.onTouchEvent(event)
-    }
-
-    private fun resetUI() {
-        if (params.leftMargin != 0) {
-            with(ValueAnimator.ofFloat(params.leftMargin.toFloat(), 0F)) {
-                duration = mResetAnimationDuration
-                addUpdateListener {
-                    val value = it.animatedValue as Float
-                    params.leftMargin = value.toInt()
-                    params.rightMargin = value.toInt()
-
-                    layoutParams = params
-                }
-                start()
             }
         }
 
-        if (translationX != 0F || translationY != 0F) {
-            animate()
-                .translationX(0F)
-                .translationY(0F)
-                .setDuration(mResetAnimationDuration)
-                .setListener(object : Animator.AnimatorListener {
-                    override fun onAnimationRepeat(animation: Animator?) {
-
-                    }
-
-                    override fun onAnimationEnd(animation: Animator?) {
-                        handleBackgroundColor(0)
-                        requestLayout()
-                    }
-
-                    override fun onAnimationCancel(animation: Animator?) {
-                    }
-
-                    override fun onAnimationStart(animation: Animator?) {
-                    }
-                })
-                .start()
-        }
-    }
-
-    private fun handleBackgroundColor(difference: Int) {
-        activity.window.decorView.setBackgroundColor(getCustomColor(difference))
-    }
-
-    private fun handleMargins(difference: Double) {
-        val mappedValue = mapMargin(difference)
-
-        params.rightMargin = mappedValue
-        params.leftMargin = mappedValue
-
-        layoutParams = params
-    }
-
-    private fun getCustomColor(margin: Int): Int {
-        val hex = "#%02X141414".format(mapAlphaColor(margin.toDouble()))
-        return Color.parseColor(hex)
-    }
-
-    private fun mapCornerRadius(difference: Double): Float {
-        val diff = if (difference > mWindowHeight / 2) mWindowHeight / 2 else difference
-        return DraggableUtil.map(
-            false,
-            0.0,
-            mWindowHeight / 2,
-            mMinCornerRadius.toDouble(),
-            mMaxCornerRadius.toDouble(),
-            diff
-        ).toFloat()
-    }
-
-    private fun mapMargin(difference: Double): Int {
-        return DraggableUtil.map(false, 0.0, mWindowHeight, 0.0, mWindowWidth / 8.0, difference)
-    }
-
-    private fun mapAlphaColor(alphaMargin: Double): Int {
-        var mappedColor = DraggableUtil.map(true, 0.0, mWindowHeight, 0.0, 255.0, alphaMargin)
-        if (mappedColor < 70) mappedColor = 70
-
-        return mappedColor
-    }
-
-    private fun isSwipe(): Boolean {
-        val xPercentage = (100 * abs(mTouchDeltaX)) / mWindowWidth.toDouble()
-        val yPercentage = (100 * abs(mTouchDeltaY)) / mWindowHeight
-
-        // IF X Percentage exceed 5.0 and Y Percentage still below 1.0 = Swipe
-        return !(yPercentage > 1.0 && xPercentage < 5.0)
+        return true
     }
 
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
         super.onWindowFocusChanged(hasWindowFocus)
+
         if (hasWindowFocus) {
-            params = layoutParams as MarginLayoutParams
-
             mWindowHeight = context.resources.displayMetrics.heightPixels.toDouble()
-            mWindowWidth = context.resources.displayMetrics.widthPixels
+            mWindowWidth = context.resources.displayMetrics.widthPixels.toDouble()
 
-            mActivityFinishOffset = mWindowHeight / 5
+            mWindowMaxDistance = sqrt(mWindowHeight.pow(2) + mWindowWidth.pow(2))
+
+            mBasePointX = x
+            mBasePointY = y
 
             for (i in 0 until childCount) {
                 val child = getChildAt(i)
@@ -263,28 +266,45 @@ class DraggableScrollViewLayout @JvmOverloads constructor(
                     break
                 }
             }
+
+            handleScale(0.0)
+            handleBackgroundColor(0.0)
+
+            requestLayout()
         }
     }
 
     override fun dispatchDraw(canvas: Canvas) {
-        val cornerRadius = mapCornerRadius(y.toDouble())
+        val distance = calculateDistance()
+
+        if (!mIsFinishing) {
+            handleScale(distance)
+            handleBackgroundColor(distance)
+        }
+
+        if (_mMaxCornerRadius == 0F) {
+            super.dispatchDraw(canvas)
+            return
+        }
 
         val count = canvas.save()
         val path = Path()
         val rect = RectF(0f, 0f, canvas.width.toFloat(), canvas.height.toFloat())
         val arrayRadius = floatArrayOf(0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f)
 
-        arrayRadius[0] = cornerRadius
-        arrayRadius[1] = cornerRadius
+        val corners = handleCornerRadius(distance)
 
-        arrayRadius[2] = cornerRadius
-        arrayRadius[3] = cornerRadius
+        arrayRadius[0] = corners["topLeft"]!!
+        arrayRadius[1] = corners["topLeft"]!!
 
-        arrayRadius[4] = cornerRadius
-        arrayRadius[5] = cornerRadius
+        arrayRadius[2] = corners["topRight"]!!
+        arrayRadius[3] = corners["topRight"]!!
 
-        arrayRadius[6] = cornerRadius
-        arrayRadius[7] = cornerRadius
+        arrayRadius[4] = corners["bottomLeft"]!!
+        arrayRadius[5] = corners["bottomLeft"]!!
+
+        arrayRadius[6] = corners["bottomRight"]!!
+        arrayRadius[7] = corners["bottomRight"]!!
 
         path.addRoundRect(rect, arrayRadius, Path.Direction.CW)
         canvas.clipPath(path)
@@ -294,26 +314,257 @@ class DraggableScrollViewLayout @JvmOverloads constructor(
         canvas.restoreToCount(count)
     }
 
+    private fun calculateDistance(): Double {
+        val distanceX = mBasePointX - x.toDouble()
+        val distanceY = mBasePointY - y.toDouble()
+
+        return sqrt(distanceX.pow(2) + distanceY.pow(2))
+    }
+
+    private fun handleCornerRadius(distance: Double): MutableMap<String, Float> {
+        val mappedValue = DraggableUtil.map(
+            false,
+            0.0,
+            mWindowHeight / 2,
+            _mMinCornerRadius.toDouble(),
+            _mMaxCornerRadius.toDouble(),
+            if (distance > mWindowHeight / 2) mWindowHeight / 2 else distance
+        ).toFloat()
+
+        val corners = mutableMapOf<String, Float>()
+
+        if (allCorners()) {
+            corners["topLeft"] = mappedValue
+            corners["topRight"] = mappedValue
+            corners["bottomLeft"] = mappedValue
+            corners["bottomRight"] = mappedValue
+        } else {
+            corners["topLeft"] = if (topLeftCorner()) mappedValue else 0F
+            corners["topRight"] = if (topRightCorner()) mappedValue else 0F
+            corners["bottomLeft"] = if (bottomLeftCorner()) mappedValue else 0F
+            corners["bottomRight"] = if (bottomRightCorner()) mappedValue else 0F
+        }
+
+        return corners
+    }
+
+    private fun handleBackgroundColor(distance: Double) {
+        if (_mTransparentBackground) {
+            activity.window.decorView.setBackgroundColor(Color.parseColor("#00000000"))
+        } else {
+            var mappedColor =
+                DraggableUtil.map(
+                    true,
+                    0.0,
+                    mWindowMaxDistance,
+                    0.0,
+                    _mBackgroundColorOpacityMax.toDouble(),
+                    distance
+                )
+
+            if (mappedColor < _mBackgroundColorOpacityMin)
+                mappedColor = _mBackgroundColorOpacityMin.toInt()
+
+            activity.window.decorView.setBackgroundColor(
+                Color.parseColor(("#%02X$_mBackgroundColor").format(mappedColor))
+            )
+        }
+    }
+
+    private fun handleScale(distance: Double) {
+        if (!_mScaleEnabled) return
+
+        val mappedValue = DraggableUtil.mapScaleFactor(
+            distance,
+            0.0,
+            mWindowMaxDistance,
+            _mScaleFactor,
+            1.0
+        )
+
+        scaleX = mappedValue
+        scaleY = mappedValue
+    }
+
+    private fun resetUI() {
+        if (translationY != 0F || translationX != 0F) {
+            with(ValueAnimator.ofFloat(scaleX, 1.0F)) {
+                duration = RESET_ANIMATION_DURATION
+                addUpdateListener { requestLayout() }
+                start()
+            }
+
+            animate()
+                .translationX(0F)
+                .translationY(0F)
+                .scaleX(1F)
+                .scaleY(1F)
+                .setDuration(RESET_ANIMATION_DURATION)
+                .setListener(object : SimpleAnimatorListener() {
+                    override fun onAnimationEnd(animation: Animator?) {
+                        finishListeners()
+                    }
+                })
+                .start()
+        } else {
+            finishListeners()
+        }
+    }
+
+    private fun finish() {
+        mIsFinishing = true
+
+        activity.window.decorView.setBackgroundColor(Color.parseColor("#00FFFFFF"))
+        activity.finish()
+        activity.overridePendingTransition(0, _mExitAnimation)
+    }
+
     private fun setupAttributes(attrs: AttributeSet?) {
         val styledAttr =
             context.obtainStyledAttributes(attrs, R.styleable.DraggableScrollViewLayout)
 
-        mMinCornerRadius =
+        _mMinCornerRadius =
             styledAttr.getDimension(
                 R.styleable.DraggableScrollViewLayout_draggableMinCornerRadius,
-                0F
-            )
-        mMaxCornerRadius =
-            styledAttr.getDimension(
-                R.styleable.DraggableScrollViewLayout_draggableMaxCornerRadius,
-                0F
+                _mMinCornerRadius
             )
 
+        _mMaxCornerRadius =
+            styledAttr.getDimension(
+                R.styleable.DraggableScrollViewLayout_draggableMaxCornerRadius,
+                _mMaxCornerRadius
+            )
+
+        _mDirectionsFlag =
+            styledAttr.getInteger(
+                R.styleable.DraggableScrollViewLayout_draggableDirections,
+                _mDirectionsFlag
+            )
+
+        _mCornersFlag =
+            styledAttr.getInteger(
+                R.styleable.DraggableScrollViewLayout_draggableCorners,
+                _mCornersFlag
+            )
+
+        _mDraggableAngle =
+            styledAttr.getFloat(R.styleable.DraggableScrollViewLayout_draggableDetectionAngle, 90F)
+                .toDouble()
+
+        _mBackgroundColor =
+            Integer.toHexString(
+                styledAttr.getColor(
+                    R.styleable.DraggableScrollViewLayout_draggableBackgroundColor,
+                    0
+                )
+            )
+
+        _mBackgroundColorOpacityMin =
+            styledAttr.getFloat(
+                R.styleable.DraggableScrollViewLayout_draggableBackgroundOpacityMin,
+                _mBackgroundColorOpacityMin
+            )
+
+        _mBackgroundColorOpacityMax =
+            styledAttr.getFloat(
+                R.styleable.DraggableScrollViewLayout_draggableBackgroundOpacityMax,
+                _mBackgroundColorOpacityMax
+            )
+
+        _mTransparentBackground =
+            styledAttr.getBoolean(
+                R.styleable.DraggableScrollViewLayout_draggableTransparentBackground,
+                _mTransparentBackground
+            )
+
+        _mScaleFactor =
+            styledAttr.getFloat(
+                R.styleable.DraggableScrollViewLayout_draggableScaleFactor,
+                _mScaleFactor.toFloat()
+            ).toDouble()
+
+        _mScaleEnabled =
+            styledAttr.getBoolean(
+                R.styleable.DraggableScrollViewLayout_draggableScaleEnabled,
+                _mScaleEnabled
+            )
+
+        _mExitAnimation =
+            styledAttr.getResourceId(
+                R.styleable.DraggableScrollViewLayout_draggableExitAnimation,
+                _mExitAnimation
+            )
+
+        _mBackgroundColor =
+            if (_mBackgroundColor == "0") "000000"
+            else _mBackgroundColor.toUpperCase(Locale.ROOT).substring(2)
+
+        if (_mMinCornerRadius != 0F && _mMaxCornerRadius == 0F)
+            _mMaxCornerRadius = _mMinCornerRadius
+
+        DraggableUtil.checkAttributes(
+            _mMinCornerRadius,
+            _mMaxCornerRadius,
+            _mDraggableAngle,
+            _mBackgroundColorOpacityMin,
+            _mBackgroundColorOpacityMax,
+            _mTransparentBackground,
+            _mScaleFactor
+        )
+
         styledAttr.recycle()
+    }
+
+    fun setDragListener(listener: DragListener) {
+        this.mDragListener = listener
+    }
+
+    fun setScrollListener(listener: ScrollListener) {
+        this.mScrollListener = listener
+    }
+
+    private fun finishListeners() {
+        if (mMode == MODE.DRAG) mDragListener?.onDragFinished()
+        else mScrollListener?.onScrollFinished()
+    }
+
+    fun enableDrag() {
+        mUserLock = false
+    }
+
+    fun disableDrag() {
+        mUserLock = true
+    }
+
+    interface ScrollListener {
+        fun onScrollStarted(rawX: Float, rawY: Float)
+        fun onScroll(scrollX: Int, scrollY: Int)
+        fun onScrollFinished()
+    }
+
+    interface DragListener {
+        fun onDragStarted(rawX: Float, rawY: Float)
+        fun onDrag(touchDeltaX: Float, touchDeltaY: Float)
+        fun onDragFinished()
     }
 
     private enum class MODE {
         SCROLL,
         DRAG
+    }
+
+    private fun topLeftCorner() = _mCornersFlag or 1 == _mCornersFlag
+    private fun topRightCorner() = _mCornersFlag or 2 == _mCornersFlag
+    private fun bottomRightCorner() = _mCornersFlag or 4 == _mCornersFlag
+    private fun bottomLeftCorner() = _mCornersFlag or 8 == _mCornersFlag
+    private fun allCorners() = _mCornersFlag or 15 == _mCornersFlag
+
+    private fun moveBottom() = _mDirectionsFlag or 2 == _mDirectionsFlag
+    private fun moveLeft() = _mDirectionsFlag or 4 == _mDirectionsFlag
+    private fun moveRight() = _mDirectionsFlag or 8 == _mDirectionsFlag
+    private fun moveAll() = _mDirectionsFlag or 15 == _mDirectionsFlag
+
+    private fun log(s: String) {
+        Log.d("Draggable", s)
     }
 }
