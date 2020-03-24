@@ -65,6 +65,7 @@ class DraggableScrollViewLayout @JvmOverloads constructor(
     private var _mScaleFactor = 0.6
     private var _mScaleEnabled = true
     private var _mTransparentBackground = false
+    private var _mFinishOffset = 0F
 
     private var _mExitAnimation = R.anim.draggable_exit_animation
 
@@ -242,13 +243,21 @@ class DraggableScrollViewLayout @JvmOverloads constructor(
                 requestLayout()
             }
             MotionEvent.ACTION_UP -> {
-                val velocity =
-                    calculateDistance().toInt() / (System.currentTimeMillis() - mTouchTimeStart)
-
-                if (velocity > 0L) {
-                    finish()
+                if (_mFinishOffset > 0F) {
+                    if (mTouchDeltaY >= _mFinishOffset) {
+                        finish()
+                    } else {
+                        resetUI()
+                    }
                 } else {
-                    resetUI()
+                    val velocity =
+                        calculateDistance().toInt() / (System.currentTimeMillis() - mTouchTimeStart)
+
+                    if (velocity > 0L) {
+                        finish()
+                    } else {
+                        resetUI()
+                    }
                 }
             }
         }
@@ -503,6 +512,12 @@ class DraggableScrollViewLayout @JvmOverloads constructor(
             styledAttr.getResourceId(
                 R.styleable.DraggableScrollViewLayout_draggableExitAnimation,
                 _mExitAnimation
+            )
+
+        _mFinishOffset =
+            styledAttr.getDimension(
+                R.styleable.DraggableScrollViewLayout_draggableFinishOffset,
+                _mFinishOffset
             )
 
         _mBackgroundColor =

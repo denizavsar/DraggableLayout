@@ -11,6 +11,7 @@
         <attr name="draggableScaleFactor" format="float" />
         <attr name="draggableScaleEnabled" format="boolean" />
         <attr name="draggableExitAnimation" format="reference" />
+        <attr name="draggableFinishOffset" format="dimension" />
         <attr name="draggableCorners">
             <flag name="none" value="0" />
             <flag name="topLeft" value="1" />
@@ -40,6 +41,7 @@
         <attr name="draggableScaleFactor" />
         <attr name="draggableScaleEnabled" />
         <attr name="draggableExitAnimation" />
+        <attr name="draggableFinishOffset" />
         <attr name="draggableCorners" />
         <attr name="draggableDirections" />
     </declare-styleable>
@@ -55,6 +57,7 @@
         <attr name="draggableScaleFactor" />
         <attr name="draggableScaleEnabled" />
         <attr name="draggableExitAnimation" />
+        <attr name="draggableFinishOffset" />
         <attr name="draggableCorners" />
         <attr name="draggableDirections" />
     </declare-styleable>

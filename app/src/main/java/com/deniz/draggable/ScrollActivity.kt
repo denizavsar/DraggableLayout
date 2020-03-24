@@ -29,7 +29,7 @@ class ScrollActivity : AppCompatActivity() {
                 log("Drag Start")
             }
 
-            override fun onDrag(touchDeltaX: Float, touchDeltaY: Float) {
+            override fun onDrag(rawX: Float, rawY: Float, touchDeltaX: Float, touchDeltaY: Float) {
                 log("ON Drag")
             }
 
