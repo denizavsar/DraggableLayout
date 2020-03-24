@@ -153,7 +153,7 @@ class DraggableFrameLayout @JvmOverloads constructor(
                     translationY = mTouchDeltaY
                 }
 
-                mDragListener?.onDrag(mTouchDeltaX, mTouchDeltaY)
+                mDragListener?.onDrag(mCurrentTouchX, mCurrentTouchY, mTouchDeltaX, mTouchDeltaY)
 
                 requestLayout()
             }
@@ -485,7 +485,7 @@ class DraggableFrameLayout @JvmOverloads constructor(
 
     interface DragListener {
         fun onDragStarted(rawX: Float, rawY: Float)
-        fun onDrag(touchDeltaX: Float, touchDeltaY: Float)
+        fun onDrag(rawX: Float, rawY: Float, touchDeltaX: Float, touchDeltaY: Float)
         fun onDragFinished()
     }
 

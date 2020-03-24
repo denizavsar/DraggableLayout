@@ -199,7 +199,12 @@ class DraggableScrollViewLayout @JvmOverloads constructor(
                                     0F
                                 }
 
-                                mDragListener?.onDrag(mCurrentTouchX, mCurrentTouchY)
+                                mDragListener?.onDrag(
+                                    mCurrentTouchX,
+                                    mCurrentTouchY,
+                                    mTouchDeltaX,
+                                    mTouchDeltaY
+                                )
                             }
                         } else {
                             if (!moveAll()) {
@@ -224,7 +229,12 @@ class DraggableScrollViewLayout @JvmOverloads constructor(
                                 translationY = mTouchDeltaY
                             }
 
-                            mDragListener?.onDrag(mCurrentTouchX, mCurrentTouchY)
+                            mDragListener?.onDrag(
+                                mCurrentTouchX,
+                                mCurrentTouchY,
+                                mTouchDeltaX,
+                                mTouchDeltaY
+                            )
                         }
                     }
                 }
@@ -544,7 +554,7 @@ class DraggableScrollViewLayout @JvmOverloads constructor(
 
     interface DragListener {
         fun onDragStarted(rawX: Float, rawY: Float)
-        fun onDrag(touchDeltaX: Float, touchDeltaY: Float)
+        fun onDrag(rawX: Float, rawY: Float, touchDeltaX: Float, touchDeltaY: Float)
         fun onDragFinished()
     }
 
