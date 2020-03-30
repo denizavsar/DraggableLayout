@@ -6,9 +6,6 @@
         <item name="android:windowBackground">@color/transparent</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowAnimationStyle">@null</item>
-        <item name="colorPrimary">@color/transparent</item>
-        <item name="colorPrimaryDark">@color/transparent</item>
-        <item name="colorAccent">@color/transparent</item>
         <item name="actionModeBackground">@color/transparent</item>
     </style>
 

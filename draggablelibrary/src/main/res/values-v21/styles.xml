@@ -5,4 +5,5 @@
         <item name="android:windowNoTitle">true</item>
         <item name="android:statusBarColor">@color/transparent</item>
     </style>
+
 </resources>
