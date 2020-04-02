@@ -19,6 +19,7 @@ import com.deniz.draggablelibrary.callbacks.SimpleAnimatorListener
 import com.deniz.draggablelibrary.utils.DraggableUtil
 import java.util.*
 import kotlin.math.abs
+import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -250,13 +251,19 @@ class DraggableScrollViewLayout @JvmOverloads constructor(
                         resetUI()
                     }
                 } else {
-                    val velocity =
-                        calculateDistance().toInt() / (System.currentTimeMillis() - mTouchTimeStart)
+                    val distance = calculateDistance().toInt()
 
-                    if (velocity > 0L) {
-                        finish()
-                    } else {
+                    if (distance == 0) {
                         resetUI()
+                    } else {
+                        val time = max(1, System.currentTimeMillis() - mTouchTimeStart)
+                        val velocity = distance / time
+
+                        if (velocity > 0L) {
+                            finish()
+                        } else {
+                            resetUI()
+                        }
                     }
                 }
             }
