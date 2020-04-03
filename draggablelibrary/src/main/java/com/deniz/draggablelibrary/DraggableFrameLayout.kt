@@ -16,6 +16,7 @@ import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
 import com.deniz.draggablelibrary.callbacks.SimpleAnimatorListener
 import com.deniz.draggablelibrary.utils.DraggableUtil
+import com.deniz.draggablelibrary.utils.toPX
 import java.util.*
 import kotlin.math.*
 
@@ -49,17 +50,6 @@ class DraggableFrameLayout @JvmOverloads constructor(
     private var mDragListener: DragListener? = null
 
     private var mDragLock = false
-
-    private var _mMinCornerRadius = 0F
-    private var _mMaxCornerRadius = 0F
-    private var _mDraggableAngle = 0.0
-    private var _mBackgroundColor = ""
-    private var _mBackgroundColorOpacityMax = 255F
-    private var _mBackgroundColorOpacityMin = 70F
-    private var _mScaleFactor = 0.6
-    private var _mScaleEnabled = true
-    private var _mTransparentBackground = false
-    private var _mFinishOffset = 0F
 
     private var _mExitAnimation = R.anim.draggable_exit_animation
 
@@ -156,8 +146,8 @@ class DraggableFrameLayout @JvmOverloads constructor(
                 requestLayout()
             }
             MotionEvent.ACTION_UP -> {
-                if (_mFinishOffset > 0F) {
-                    if (mTouchDeltaY >= _mFinishOffset) {
+                if (Config.mFinishOffset > 0F) {
+                    if (mTouchDeltaY >= Config.mFinishOffset) {
                         finish()
                     } else {
                         resetUI()
@@ -211,7 +201,7 @@ class DraggableFrameLayout @JvmOverloads constructor(
             handleBackgroundColor(distance)
         }
 
-        if (_mMaxCornerRadius == 0F) {
+        if (Config.mMaxCornerRadius == 0F) {
             super.dispatchDraw(canvas)
             return
         }
@@ -250,17 +240,17 @@ class DraggableFrameLayout @JvmOverloads constructor(
 
         if (angle < 0.0) angle += 360
 
-        val bottomRight = 90.0 - (_mDraggableAngle / 2)
-        val bottomLeft = 90.0 + (_mDraggableAngle / 2)
+        val bottomRight = 90.0 - (Config.mDraggableAngle / 2)
+        val bottomLeft = 90.0 + (Config.mDraggableAngle / 2)
 
-        val leftBottom = 180.0 - (_mDraggableAngle / 2) + 0.01
-        val leftTop = 180.0 + (_mDraggableAngle / 2) - 0.01
+        val leftBottom = 180.0 - (Config.mDraggableAngle / 2) + 0.01
+        val leftTop = 180.0 + (Config.mDraggableAngle / 2) - 0.01
 
-        val topLeft = 270.0 - (_mDraggableAngle / 2)
-        val topRight = 270.0 + (_mDraggableAngle / 2)
+        val topLeft = 270.0 - (Config.mDraggableAngle / 2)
+        val topRight = 270.0 + (Config.mDraggableAngle / 2)
 
-        val rightTop = 360 - (_mDraggableAngle / 2)
-        val rightBottom = (_mDraggableAngle / 2) - 1.0
+        val rightTop = 360 - (Config.mDraggableAngle / 2)
+        val rightBottom = (Config.mDraggableAngle / 2) - 1.0
 
         when {
             angle in bottomRight..bottomLeft -> {
@@ -294,8 +284,8 @@ class DraggableFrameLayout @JvmOverloads constructor(
             false,
             0.0,
             mWindowHeight / 2,
-            _mMinCornerRadius.toDouble(),
-            _mMaxCornerRadius.toDouble(),
+            Config.mMinCornerRadius.toDouble(),
+            Config.mMaxCornerRadius.toDouble(),
             if (distance > mWindowHeight / 2) mWindowHeight / 2 else distance
         ).toFloat()
 
@@ -317,7 +307,7 @@ class DraggableFrameLayout @JvmOverloads constructor(
     }
 
     private fun handleBackgroundColor(distance: Double) {
-        if (_mTransparentBackground) {
+        if (Config.mTransparentBackground) {
             activity.window.decorView.setBackgroundColor(Color.parseColor("#00000000"))
         } else {
             var mappedColor =
@@ -326,27 +316,27 @@ class DraggableFrameLayout @JvmOverloads constructor(
                     0.0,
                     mWindowMaxDistance,
                     0.0,
-                    _mBackgroundColorOpacityMax.toDouble(),
+                    Config.mBackgroundColorOpacityMax.toDouble(),
                     distance
                 )
 
-            if (mappedColor < _mBackgroundColorOpacityMin)
-                mappedColor = _mBackgroundColorOpacityMin.toInt()
+            if (mappedColor < Config.mBackgroundColorOpacityMin)
+                mappedColor = Config.mBackgroundColorOpacityMin.toInt()
 
             activity.window.decorView.setBackgroundColor(
-                Color.parseColor(("#%02X$_mBackgroundColor").format(mappedColor))
+                Color.parseColor(("#%02X${Config.mBackgroundColor}").format(mappedColor))
             )
         }
     }
 
     private fun handleScale(distance: Double) {
-        if (!_mScaleEnabled) return
+        if (!Config.mScaleEnabled) return
 
         val mappedValue = DraggableUtil.mapScaleFactor(
             distance,
             0.0,
             mWindowMaxDistance,
-            _mScaleFactor,
+            Config.mScaleFactor,
             1.0
         )
 
@@ -391,16 +381,16 @@ class DraggableFrameLayout @JvmOverloads constructor(
         val styledAttr =
             context.obtainStyledAttributes(attrs, R.styleable.DraggableFrameLayout)
 
-        _mMinCornerRadius =
+        Config.mMinCornerRadius =
             styledAttr.getDimension(
                 R.styleable.DraggableFrameLayout_draggableMinCornerRadius,
-                _mMinCornerRadius
+                Config.mMinCornerRadius
             )
 
-        _mMaxCornerRadius =
+        Config.mMaxCornerRadius =
             styledAttr.getDimension(
                 R.styleable.DraggableFrameLayout_draggableMaxCornerRadius,
-                _mMaxCornerRadius
+                Config.mMaxCornerRadius
             )
 
         _mDirectionsFlag =
@@ -415,11 +405,11 @@ class DraggableFrameLayout @JvmOverloads constructor(
                 _mCornersFlag
             )
 
-        _mDraggableAngle =
+        Config.mDraggableAngle =
             styledAttr.getFloat(R.styleable.DraggableFrameLayout_draggableDetectionAngle, 90F)
                 .toDouble()
 
-        _mBackgroundColor =
+        Config.mBackgroundColor =
             Integer.toHexString(
                 styledAttr.getColor(
                     R.styleable.DraggableFrameLayout_draggableBackgroundColor,
@@ -427,34 +417,34 @@ class DraggableFrameLayout @JvmOverloads constructor(
                 )
             )
 
-        _mBackgroundColorOpacityMin =
+        Config.mBackgroundColorOpacityMin =
             styledAttr.getFloat(
                 R.styleable.DraggableFrameLayout_draggableBackgroundOpacityMin,
-                _mBackgroundColorOpacityMin
+                Config.mBackgroundColorOpacityMin
             )
 
-        _mBackgroundColorOpacityMax =
+        Config.mBackgroundColorOpacityMax =
             styledAttr.getFloat(
                 R.styleable.DraggableFrameLayout_draggableBackgroundOpacityMax,
-                _mBackgroundColorOpacityMax
+                Config.mBackgroundColorOpacityMax
             )
 
-        _mTransparentBackground =
+        Config.mTransparentBackground =
             styledAttr.getBoolean(
                 R.styleable.DraggableFrameLayout_draggableTransparentBackground,
-                _mTransparentBackground
+                Config.mTransparentBackground
             )
 
-        _mScaleFactor =
+        Config.mScaleFactor =
             styledAttr.getFloat(
                 R.styleable.DraggableFrameLayout_draggableScaleFactor,
-                _mScaleFactor.toFloat()
+                Config.mScaleFactor.toFloat()
             ).toDouble()
 
-        _mScaleEnabled =
+        Config.mScaleEnabled =
             styledAttr.getBoolean(
                 R.styleable.DraggableFrameLayout_draggableScaleEnabled,
-                _mScaleEnabled
+                Config.mScaleEnabled
             )
 
         _mExitAnimation =
@@ -463,27 +453,27 @@ class DraggableFrameLayout @JvmOverloads constructor(
                 _mExitAnimation
             )
 
-        _mFinishOffset =
+        Config.mFinishOffset =
             styledAttr.getDimension(
                 R.styleable.DraggableFrameLayout_draggableFinishOffset,
-                _mFinishOffset
+                Config.mFinishOffset
             )
 
-        _mBackgroundColor =
-            if (_mBackgroundColor == "0") "000000"
-            else _mBackgroundColor.toUpperCase(Locale.ROOT).substring(2)
+        Config.mBackgroundColor =
+            if (Config.mBackgroundColor == "0") "000000"
+            else Config.mBackgroundColor.toUpperCase(Locale.ROOT).substring(2)
 
-        if (_mMinCornerRadius != 0F && _mMaxCornerRadius == 0F)
-            _mMaxCornerRadius = _mMinCornerRadius
+        if (Config.mMinCornerRadius != 0F && Config.mMaxCornerRadius == 0F)
+            Config.mMaxCornerRadius = Config.mMinCornerRadius
 
         DraggableUtil.checkAttributes(
-            _mMinCornerRadius,
-            _mMaxCornerRadius,
-            _mDraggableAngle,
-            _mBackgroundColorOpacityMin,
-            _mBackgroundColorOpacityMax,
-            _mTransparentBackground,
-            _mScaleFactor
+            Config.mMinCornerRadius,
+            Config.mMaxCornerRadius,
+            Config.mDraggableAngle,
+            Config.mBackgroundColorOpacityMin,
+            Config.mBackgroundColorOpacityMax,
+            Config.mTransparentBackground,
+            Config.mScaleFactor
         )
 
         styledAttr.recycle()
@@ -491,14 +481,6 @@ class DraggableFrameLayout @JvmOverloads constructor(
 
     fun setDragListener(listener: DragListener) {
         this.mDragListener = listener
-    }
-
-    fun enableDrag() {
-        mUserLock = false
-    }
-
-    fun disableDrag() {
-        mUserLock = true
     }
 
     interface DragListener {
@@ -518,6 +500,109 @@ class DraggableFrameLayout @JvmOverloads constructor(
     private fun moveLeft() = _mDirectionsFlag or 4 == _mDirectionsFlag
     private fun moveRight() = _mDirectionsFlag or 8 == _mDirectionsFlag
     private fun moveAll() = _mDirectionsFlag or 15 == _mDirectionsFlag
+
+    fun enableDrag() {
+        mUserLock = false
+    }
+
+    fun disableDrag() {
+        mUserLock = true
+    }
+
+    fun setConfig(): Config {
+        return Config()
+    }
+
+    class Config {
+
+        companion object {
+            var mMinCornerRadius = 0F
+            var mMaxCornerRadius = 0F
+            var mBackgroundColor = ""
+            var mBackgroundColorOpacityMin = 70F
+            var mBackgroundColorOpacityMax = 255F
+            var mDraggableAngle = 90.0
+            var mScaleFactor = 0.6
+            var mScaleEnabled = true
+            var mTransparentBackground = false
+            var mFinishOffset = 0F
+        }
+
+        private var minCornerRadius = 0F
+        private var maxCornerRadius = 0F
+        private var backgroundColorOpacityMin = 70F
+        private var backgroundColorOpacityMax = 255F
+        private var draggableAngle = 90.0
+        private var scaleFactor = 0.6
+        private var scaleEnabled = true
+        private var transparentBackground = false
+
+        fun setMinCornerRadius(radius: Int): Config {
+            minCornerRadius = radius.toPX()
+            return this
+        }
+
+        fun setMaxCornerRadius(radius: Int): Config {
+            maxCornerRadius = radius.toPX()
+            return this
+        }
+
+        fun setBackgroundColorOpacityMin(opacity: Float): Config {
+            backgroundColorOpacityMin = opacity
+            return this
+        }
+
+        fun setBackgroundColorOpacityMax(opacity: Float): Config {
+            backgroundColorOpacityMax = opacity
+            return this
+        }
+
+        fun setDraggableAngle(angle: Double): Config {
+            draggableAngle = angle
+            return this
+        }
+
+        fun setScaleFactor(factor: Double): Config {
+            scaleFactor = factor
+            return this
+        }
+
+        fun setScaleEnabled(isEnabled: Boolean): Config {
+            scaleEnabled = isEnabled
+            return this
+        }
+
+        fun setTransparentBackground(isEnabled: Boolean): Config {
+            transparentBackground = isEnabled
+            return this
+        }
+
+        fun setFinishOffset(offset: Float): Config {
+            mFinishOffset = offset
+            return this
+        }
+
+        fun apply() {
+            DraggableUtil.checkAttributes(
+                minCornerRadius,
+                maxCornerRadius,
+                draggableAngle,
+                backgroundColorOpacityMin,
+                backgroundColorOpacityMax,
+                transparentBackground,
+                scaleFactor
+            )
+
+            mMinCornerRadius = minCornerRadius
+            mMaxCornerRadius = maxCornerRadius
+            mBackgroundColorOpacityMin = backgroundColorOpacityMin
+            mBackgroundColorOpacityMax = backgroundColorOpacityMax
+            mDraggableAngle = draggableAngle
+            mScaleFactor = scaleFactor
+            mScaleEnabled = scaleEnabled
+            mTransparentBackground = transparentBackground
+        }
+    }
 
     private fun log(s: String) {
         Log.d("Draggable", s)

@@ -23,7 +23,9 @@ class ScrollActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_scroll)
 
-        findViewById<DraggableScrollViewLayout>(R.id.root).setDragListener(object :
+        val layout = findViewById<DraggableScrollViewLayout>(R.id.root)
+
+        layout.setDragListener(object :
             DraggableScrollViewLayout.DragListener {
             override fun onDragStarted(rawX: Float, rawY: Float) {
                 log("Drag Start")
@@ -39,7 +41,7 @@ class ScrollActivity : AppCompatActivity() {
 
         })
 
-        findViewById<DraggableScrollViewLayout>(R.id.root).setScrollListener(object :
+        layout.setScrollListener(object :
             DraggableScrollViewLayout.ScrollListener {
             override fun onScrollStarted(rawX: Float, rawY: Float) {
                 log("Scroll Start")
@@ -55,6 +57,9 @@ class ScrollActivity : AppCompatActivity() {
 
         })
 
+        layout.setConfig()
+            .setMaxCornerRadius(50)
+            .apply()
     }
 
     private fun log(s: String) {

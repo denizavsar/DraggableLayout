@@ -20,5 +20,10 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, ScrollActivity::class.java)
             startActivity(intent)
         }
+
+        findViewById<TextView>(R.id.java).setOnClickListener {
+            val intent = Intent(this, JavaActivity::class.java)
+            startActivity(intent)
+        }
     }
 }

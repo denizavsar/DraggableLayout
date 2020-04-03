@@ -8,7 +8,7 @@
     android:layout_gravity="center"
     app:draggableCorners="all"
     app:draggableDirections="all"
-    tools:context=".ScrollActivity">
+    tools:context=".JavaActivity">
 
     <ScrollView
         android:layout_width="match_parent"

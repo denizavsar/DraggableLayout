@@ -10,6 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".JavaActivity"
+            android:theme="@style/Draggable.FullScreen" />
+        <activity
             android:name=".NormalActivity"
             android:theme="@style/Draggable.NoActionBar" />
         <activity

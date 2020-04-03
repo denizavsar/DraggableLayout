@@ -33,7 +33,6 @@
     <declare-styleable name="DraggableScrollViewLayout" parent="DraggableLayout">
         <attr name="draggableMinCornerRadius" />
         <attr name="draggableMaxCornerRadius" />
-        <attr name="draggableDetectionAngle" />
         <attr name="draggableBackgroundColor" />
         <attr name="draggableBackgroundOpacityMin" />
         <attr name="draggableBackgroundOpacityMax" />
