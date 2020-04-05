@@ -11,8 +11,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        findViewById<TextView>(R.id.normal).setOnClickListener {
-            val intent = Intent(this, NormalActivity::class.java)
+        findViewById<TextView>(R.id.frame).setOnClickListener {
+            val intent = Intent(this, FrameActivity::class.java)
             startActivity(intent)
         }
 
@@ -21,7 +21,12 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        findViewById<TextView>(R.id.java).setOnClickListener {
+        findViewById<TextView>(R.id.bottom_sheet).setOnClickListener {
+            val intent = Intent(this, JavaActivity::class.java)
+            startActivity(intent)
+        }
+
+        findViewById<TextView>(R.id.image_display).setOnClickListener {
             val intent = Intent(this, JavaActivity::class.java)
             startActivity(intent)
         }

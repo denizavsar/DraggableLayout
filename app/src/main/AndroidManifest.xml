@@ -9,11 +9,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".BottomSheetActivity"></activity>
         <activity
             android:name=".JavaActivity"
             android:theme="@style/Draggable.FullScreen" />
         <activity
-            android:name=".NormalActivity"
+            android:name=".FrameActivity"
             android:theme="@style/Draggable.NoActionBar" />
         <activity
             android:name=".ScrollActivity"

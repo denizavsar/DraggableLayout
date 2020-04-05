@@ -7,12 +7,12 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 @SuppressLint("ClickableViewAccessibility")
-class NormalActivity : AppCompatActivity() {
+class FrameActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         overridePendingTransition(R.anim.draggable_enter_animation, 0)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_second)
+        setContentView(R.layout.activity_frame)
         /*
         findViewById<TextView>(R.id.zxc).setOnClickListener {
             Toast.makeText(applicationContext, "Disable", Toast.LENGTH_SHORT).show()
