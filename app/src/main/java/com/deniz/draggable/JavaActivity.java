@@ -21,7 +21,7 @@ public class JavaActivity extends AppCompatActivity {
             );
         }
 
-        setContentView(R.layout.activity_third);
+        setContentView(R.layout.activity_java);
 
         DraggableScrollViewLayout layout = findViewById(R.id.root);
         layout.setDragListener(new DraggableScrollViewLayout.DragListener() {

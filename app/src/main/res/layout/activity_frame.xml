@@ -4,51 +4,37 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:layout_gravity="center"
-    app:draggableCorners="all"
+    app:draggableCorners="topLeft|topRight"
     app:draggableMaxCornerRadius="40dp"
-    app:draggableMinCornerRadius="15dp"
     app:draggableScaleFactor="0.5"
-    app:draggableDirections="bottom|left|right"
+    app:draggableDirections="bottom"
     tools:context=".FrameActivity">
 
-    <LinearLayout
+    <ImageView
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/art" />
+
+    <ProgressBar
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginRight="15dp"
+        android:background="@color/white"
+        android:indeterminate="false" />
+
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:orientation="vertical">
-
-        <ImageView
-            android:id="@+id/qwe"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:scaleType="centerCrop"
-            android:src="@drawable/draggable_image" />
-        <!--
-                <TextView
-                    android:id="@+id/qwe"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:background="@color/primary_color"
-                    android:gravity="center"
-                    android:text="Enable"
-                    android:textColor="#FFF"
-                    android:textSize="30sp" />
-
-                <TextView
-                    android:id="@+id/zxc"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:background="@color/warning_red"
-                    android:gravity="center"
-                    android:text="Disable"
-                    android:textColor="#FFF"
-                    android:textSize="30sp" />
-                    -->
-    </LinearLayout>
-
+        android:layout_marginStart="15dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="23dp"
+        android:text="Username"
+        android:textColor="@color/white"
+        android:textSize="18sp" />
 
 </com.deniz.draggablelibrary.DraggableFrameLayout>
