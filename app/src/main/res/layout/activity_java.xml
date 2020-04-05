@@ -71,7 +71,5 @@
                     android:textSize="22sp" />
             </FrameLayout>
         </LinearLayout>
-
     </ScrollView>
-
 </com.deniz.draggablelibrary.DraggableScrollViewLayout>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.deniz.draggablelibrary.DraggableFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    app:draggableCorners="topLeft|topRight"
+    app:draggableMaxCornerRadius="40dp"
+    app:draggableScaleFactor="0.5"
+    app:draggableDirections="bottom"
+    tools:context=".FrameActivity">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/art" />
+
+    <ProgressBar
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginRight="15dp"
+        android:background="@color/white"
+        android:indeterminate="false" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="23dp"
+        android:text="Username"
+        android:textColor="@color/white"
+        android:textSize="18sp" />
+
+</com.deniz.draggablelibrary.DraggableFrameLayout>

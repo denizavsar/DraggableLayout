@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.deniz.draggablelibrary.DraggableFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="350dp"
+    android:layout_gravity="bottom"
+    app:draggableCorners="topLeft|topRight"
+    app:draggableDirections="bottom"
+    app:draggableMaxCornerRadius="35dp"
+    app:draggableMinCornerRadius="5dp"
+    app:draggableScaleEnabled="false"
+    app:draggableTransparentBackground="true"
+    tools:context=".BottomSheetActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:background="#CE000000"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_margin="25dp"
+            android:text="This is draggable bottom sheet"
+            android:textColor="@color/white"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_margin="25dp"
+            android:background="@drawable/rounded_button"
+            android:padding="25dp"
+            android:text="Close"
+            android:textColor="@color/white"
+            android:textSize="18sp" />
+
+    </RelativeLayout>
+</com.deniz.draggablelibrary.DraggableFrameLayout>

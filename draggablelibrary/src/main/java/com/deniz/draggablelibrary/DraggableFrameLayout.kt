@@ -384,13 +384,13 @@ class DraggableFrameLayout @JvmOverloads constructor(
         Config.mMinCornerRadius =
             styledAttr.getDimension(
                 R.styleable.DraggableFrameLayout_draggableMinCornerRadius,
-                Config.mMinCornerRadius
+                0F
             )
 
         Config.mMaxCornerRadius =
             styledAttr.getDimension(
                 R.styleable.DraggableFrameLayout_draggableMaxCornerRadius,
-                Config.mMaxCornerRadius
+                0F
             )
 
         _mDirectionsFlag =
@@ -420,31 +420,31 @@ class DraggableFrameLayout @JvmOverloads constructor(
         Config.mBackgroundColorOpacityMin =
             styledAttr.getFloat(
                 R.styleable.DraggableFrameLayout_draggableBackgroundOpacityMin,
-                Config.mBackgroundColorOpacityMin
+                70F
             )
 
         Config.mBackgroundColorOpacityMax =
             styledAttr.getFloat(
                 R.styleable.DraggableFrameLayout_draggableBackgroundOpacityMax,
-                Config.mBackgroundColorOpacityMax
+                255F
             )
 
         Config.mTransparentBackground =
             styledAttr.getBoolean(
                 R.styleable.DraggableFrameLayout_draggableTransparentBackground,
-                Config.mTransparentBackground
+                false
             )
 
         Config.mScaleFactor =
             styledAttr.getFloat(
                 R.styleable.DraggableFrameLayout_draggableScaleFactor,
-                Config.mScaleFactor.toFloat()
+                0.6F
             ).toDouble()
 
         Config.mScaleEnabled =
             styledAttr.getBoolean(
                 R.styleable.DraggableFrameLayout_draggableScaleEnabled,
-                Config.mScaleEnabled
+                true
             )
 
         _mExitAnimation =
@@ -456,7 +456,7 @@ class DraggableFrameLayout @JvmOverloads constructor(
         Config.mFinishOffset =
             styledAttr.getDimension(
                 R.styleable.DraggableFrameLayout_draggableFinishOffset,
-                Config.mFinishOffset
+                0F
             )
 
         Config.mBackgroundColor =
