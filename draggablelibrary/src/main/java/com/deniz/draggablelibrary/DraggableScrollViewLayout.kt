@@ -62,6 +62,7 @@ class DraggableScrollViewLayout @JvmOverloads constructor(
 
     private var _mCornersFlag = 0
     private var _mDirectionsFlag = 0
+    private var _mDistanceAxisFlag = 3
 
     private var mUserLock = false
 
@@ -334,7 +335,18 @@ class DraggableScrollViewLayout @JvmOverloads constructor(
         val distanceX = mBasePointX - x.toDouble()
         val distanceY = mBasePointY - y.toDouble()
 
-        return sqrt(distanceX.pow(2) + distanceY.pow(2))
+        return when {
+            distanceAxisAll() -> {
+                sqrt(distanceX.pow(2) + distanceY.pow(2))
+            }
+            distanceAxisX() -> {
+                abs(distanceX)
+            }
+            distanceAxisY() -> {
+                abs(distanceY)
+            }
+            else -> 0.0
+        }
     }
 
     private fun handleCornerRadius(distance: Double): MutableMap<String, Float> {
@@ -463,6 +475,12 @@ class DraggableScrollViewLayout @JvmOverloads constructor(
                 _mCornersFlag
             )
 
+        _mDistanceAxisFlag =
+            styledAttr.getInteger(
+                R.styleable.DraggableScrollViewLayout_draggableDistanceAxis,
+                _mDistanceAxisFlag
+            )
+
         Config.mBackgroundColor =
             Integer.toHexString(
                 styledAttr.getColor(
@@ -573,6 +591,10 @@ class DraggableScrollViewLayout @JvmOverloads constructor(
     private fun moveLeft() = _mDirectionsFlag or 4 == _mDirectionsFlag
     private fun moveRight() = _mDirectionsFlag or 8 == _mDirectionsFlag
     private fun moveAll() = _mDirectionsFlag or 15 == _mDirectionsFlag
+
+    private fun distanceAxisX() = _mDistanceAxisFlag or 1 == _mDistanceAxisFlag
+    private fun distanceAxisY() = _mDistanceAxisFlag or 2 == _mDistanceAxisFlag
+    private fun distanceAxisAll() = _mDistanceAxisFlag or 3 == _mDistanceAxisFlag
 
     fun enableDrag() {
         mUserLock = false

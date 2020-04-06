@@ -28,6 +28,12 @@
             <flag name="right" value="8" />
             <flag name="all" value="15" />
         </attr>
+        <attr name="draggableDistanceAxis">
+            <flag name="none" value="0" />
+            <flag name="x" value="1" />
+            <flag name="y" value="2" />
+            <flag name="all" value="3" />
+        </attr>
     </declare-styleable>
 
     <declare-styleable name="DraggableScrollViewLayout" parent="DraggableLayout">
@@ -43,6 +49,7 @@
         <attr name="draggableFinishOffset" />
         <attr name="draggableCorners" />
         <attr name="draggableDirections" />
+        <attr name="draggableDistanceAxis" />
     </declare-styleable>
 
     <declare-styleable name="DraggableFrameLayout" parent="DraggableLayout">
@@ -59,5 +66,6 @@
         <attr name="draggableFinishOffset" />
         <attr name="draggableCorners" />
         <attr name="draggableDirections" />
+        <attr name="draggableDistanceAxis" />
     </declare-styleable>
 </resources>
