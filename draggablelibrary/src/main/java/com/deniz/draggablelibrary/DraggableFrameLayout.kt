@@ -358,9 +358,16 @@ class DraggableFrameLayout @JvmOverloads constructor(
 
     private fun resetUI() {
         if (translationY != 0F || translationX != 0F) {
-            with(ValueAnimator.ofFloat(scaleX, 1.0F)) {
+            val distance = calculateDistance().toFloat()
+
+            with(ValueAnimator.ofFloat(distance, 0.0F)) {
                 duration = RESET_ANIMATION_DURATION
-                addUpdateListener { requestLayout() }
+                addUpdateListener {
+                    val finishDistance = it.animatedValue as Float
+                    mDragListener?.onDragFinishing(finishDistance)
+
+                    requestLayout()
+                }
                 start()
             }
 
@@ -504,6 +511,7 @@ class DraggableFrameLayout @JvmOverloads constructor(
     interface DragListener {
         fun onDragStarted(rawX: Float, rawY: Float)
         fun onDrag(rawX: Float, rawY: Float, touchDeltaX: Float, touchDeltaY: Float)
+        fun onDragFinishing(distance: Float)
         fun onDragFinished()
     }
 
