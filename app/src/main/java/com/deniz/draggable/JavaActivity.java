@@ -26,7 +26,7 @@ public class JavaActivity extends AppCompatActivity {
         DraggableScrollViewLayout layout = findViewById(R.id.root);
         layout.setDragListener(new DraggableScrollViewLayout.DragListener() {
             @Override
-            public void onDragFinished() {
+            public void onDragStarted(float rawX, float rawY) {
 
             }
 
@@ -36,11 +36,11 @@ public class JavaActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onDragStarted(float rawX, float rawY) {
+            public void onDragFinished() {
 
             }
         });
 
-        layout.setConfig().setScaleEnabled(false).apply();
+        layout.setConfig().setScaleEnabled(false).setMaxCornerRadius(35).apply();
     }
 }
