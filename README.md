@@ -1,6 +1,15 @@
 # Draggable XML Layout
 
-This library provides you to flexibility of draggable activities like instagram story, image display, bottom sheet etc.
+There are `TWO` usage of this library.
+
+1) DraggableFrameLayout
+2) DraggableScrollViewLayout
+
+Use `DraggableFrameLayout` for your activities that does not contain any scrollable content! (Story, Image, etc.)
+
+Use `DraggableScrollViewLayout` for your activities that contain scrollable content! (Look for the second gif)
+
+> Java example can be found here: [Class](https://github.com/denizavsar/DraggableLayout/blob/master/app/src/main/java/com/deniz/draggable/JavaActivity.java) / [XML](https://github.com/denizavsar/DraggableLayout/blob/master/app/src/main/res/layout/activity_java.xml)
 
 <p align="center">
     <img src="https://github.com/denizavsar/DraggableLayout/blob/master/art/story.gif" width="180" height="320">
@@ -11,30 +20,78 @@ This library provides you to flexibility of draggable activities like instagram 
 
 ## Installation
 
-app/build.gradle
-
 ```groovy
 implementation "com.github.denizavsar:DraggableLayout:5.1.1"
 ```
 
 ## Usage
 
-Add theme for your activity on manifest
-```xml
-<!-- AndroidManifest.xml -->
+Add `android:theme="@style/Draggable.NoActionBar"` on your activity decleration on `AndroidManifest.xml`
 
+```xml
 <activity
     android:name=".MainActivity"
     android:theme="@style/Draggable.NoActionBar" />
 ```
 
-Add the draggable layout on your activity xml
+Add `overridePendingTransition(R.anim.draggable_enter_animation, 0)` before `super.onCreate(savedInstanceState)` on your activity class
 
-> Frame Layout
+```kotlin
+override fun onCreate(savedInstanceState: Bundle?) {
+    overridePendingTransition(R.anim.draggable_enter_animation, 0)
+    super.onCreate(savedInstanceState)
+}
+```
+
+---
+
+You can merge `Draggable` styles (`Draggable.NoActionBar`, `Draggable.FullScreen`) with your own styles on `styles.xml`
 
 ```xml
-<!-- activity_main.xml -->
+<style name="StoryScreen" parent="Draggable.FullScreen">
+    <item name="colorPrimary">@color/primary_color</item>
+    <item name="colorPrimaryDark">@color/primary_color_dark</item>
+    <item name="colorAccent">@color/accent_color</item>
+    <!-- more items -->
+</style>
+```
 
+and use it like on your `AndroidManifest.xml`
+
+```xml
+<activity
+    android:name=".MainActivity"
+    android:theme="@style/StoryScreen" />
+```
+
+**IMPORTANT 1**
+
+If you are going to use `Draggable.FullScreen` style, you should put that code in your `onCreate` method before the `setContentView(...)`
+
+```kotlin
+override fun onCreate(savedInstanceState: Bundle?) {
+    overridePendingTransition(R.anim.draggable_enter_animation, 0)
+    super.onCreate(savedInstanceState)
+    
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
+    }
+    
+    setContentView(R.layout.activity_main)
+}
+```
+
+**IMPORTANT 2**
+
+If you use `ViewPager` (or something like listen to `left` and `right` swipe events) inside `DraggableLayout`, you should only enable moveable directions (`top` and `bottom`) with `app:draggableDirections="top|bottom"` to prevent the `DraggableLayout` catch the `left` and `right` swipe events!
+
+---
+
+**DraggableFrameLayout**
+
+This xml layout is suitable for instagram like stories swipe down to close feature. `draggableDirections` is set to `bottom` so you can only start the drag operation with hold and swipe down gesture
+
+```xml
 <com.deniz.draggablelibrary.DraggableFrameLayout 
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -50,13 +107,15 @@ Add the draggable layout on your activity xml
 </com.deniz.draggablelibrary.DraggableFrameLayout>
 ```
 
-> Scroll Layout
+> Example: [Class](https://github.com/denizavsar/DraggableLayout/blob/master/app/src/main/java/com/deniz/draggable/FrameActivity.kt) / [XML](https://github.com/denizavsar/DraggableLayout/blob/master/app/src/main/res/layout/activity_frame.xml)
 
-You must put a scroll view inside DraggableScrollViewLayout layout!
+---
+
+**DraggableScrollViewLayout**
+
+This xml layout is for activities that contain scrollable content. Just wrap your `ScrollView` with `DraggableScrollViewLayout`!
 
 ```xml
-<!-- activity_main.xml -->
-
 <com.deniz.draggablelibrary.DraggableScrollViewLayout 
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -76,16 +135,9 @@ You must put a scroll view inside DraggableScrollViewLayout layout!
 </com.deniz.draggablelibrary.DraggableScrollViewLayout>
 ```
 
-Add this on your activity class onCreate method
+> Example: [Class](https://github.com/denizavsar/DraggableLayout/blob/master/app/src/main/java/com/deniz/draggable/ScrollActivity.kt) / [XML](https://github.com/denizavsar/DraggableLayout/blob/master/app/src/main/res/layout/activity_scroll.xml)
 
-```kotlin
-// MainActivity.kt -> onCreate()
-
-overridePendingTransition(R.anim.draggable_enter_animation, 0)
-super.onCreate(savedInstanceState)
-```
-
-**Ready to go!**
+**You are ready to go!**
 
 ## Detailed Usage
 
@@ -155,7 +207,7 @@ Limitations : draggableMaxCornerRadius >= draggableMinCornerRadius
 Explanation : See 'draggableCorners' attribute
 ```
 ***
-> draggableDetectionAngle
+> draggableDetectionAngle (Only works with DraggableFrameLayout)
 ```text
 Usage       : app:draggableDetectionAngle="45"
 Default     : 90F
