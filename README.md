@@ -11,15 +11,15 @@ This library provides you to flexibility of draggable activities like instagram 
 
 ## Installation
 
-**app/build.gradle**
+app/build.gradle
 
-```gradle
+```groovy
 implementation "com.github.denizavsar:DraggableLayout:5.1.1"
 ```
 
 ## Usage
 
-**Add theme for your activity on manifest**
+Add theme for your activity on manifest
 ```xml
 <!-- AndroidManifest.xml -->
 
@@ -28,7 +28,7 @@ implementation "com.github.denizavsar:DraggableLayout:5.1.1"
     android:theme="@style/Draggable.NoActionBar" />
 ```
 
-**Add the draggable layout on your activity xml**
+Add the draggable layout on your activity xml
 
 > Frame Layout
 
@@ -52,7 +52,7 @@ implementation "com.github.denizavsar:DraggableLayout:5.1.1"
 
 > Scroll Layout
 
-**!! Must place a scroll view inside DraggableScrollViewLayout layout !!**
+You must put a scroll view inside DraggableScrollViewLayout layout!
 
 ```xml
 <!-- activity_main.xml -->
@@ -76,7 +76,7 @@ implementation "com.github.denizavsar:DraggableLayout:5.1.1"
 </com.deniz.draggablelibrary.DraggableScrollViewLayout>
 ```
 
-**Add this on your activity class onCreate method**
+Add this on your activity class onCreate method
 
 ```kotlin
 // MainActivity.kt -> onCreate()
@@ -91,7 +91,7 @@ super.onCreate(savedInstanceState)
 
 * **Listeners**
 
-```
+```kotlin
 // DraggableFrameLayout - DragListener
 
 val root = findViewById<DraggableFrameLayout>(R.id.root)
@@ -115,7 +115,7 @@ root.setDragListener(object : DraggableFrameLayout.DragListener {
 })
 ```
 
-```
+```kotlin
 // DraggableScrollViewLayout - ScrollListener
 
 val layout = findViewById<DraggableScrollViewLayout>(R.id.root)
@@ -138,7 +138,7 @@ layout.setScrollListener(object : DraggableScrollViewLayout.ScrollListener {
 * **Xml Attributes**
 
 > draggableMinCornerRadius
-```
+```text
 Usage       : app:draggableMinCornerRadius="15dp"
 Default     : 0F
 Format      : dimension
@@ -147,7 +147,7 @@ Explanation : See 'draggableCorners' attribute
 ```
 ***
 > draggableMaxCornerRadius
-```
+```text
 Usage       : app:draggableMaxCornerRadius="40dp"
 Default     : 0F
 Format      : dimension
@@ -156,7 +156,7 @@ Explanation : See 'draggableCorners' attribute
 ```
 ***
 > draggableDetectionAngle
-```
+```text
 Usage       : app:draggableDetectionAngle="45"
 Default     : 90F
 Format      : float
@@ -164,7 +164,7 @@ Limitations : 0 <= draggableDetectionAngle <= 90
 ```
 ***
 > draggableBackgroundColor
-```
+```text
 Usage       : app:draggableBackgroundColor="@color/black"
 Default     : #000000
 Format      : color
@@ -172,7 +172,7 @@ Limitations : -
 ```
 ***
 > draggableBackgroundOpacityMin
-```
+```text
 Usage       : app:draggableBackgroundOpacityMin="100"
 Default     : 70F
 Format      : float
@@ -180,7 +180,7 @@ Limitations : draggableBackgroundOpacityMin >= 0
 ```
 ***
 > draggableBackgroundOpacityMax
-```
+```text
 Usage       : app:draggableBackgroundOpacityMax="155"
 Default     : 255F
 Format      : float
@@ -188,7 +188,7 @@ Limitations : draggableBackgroundOpacityMax >= draggableBackgroundOpacityMin
 ```
 ***
 > draggableTransparentBackground
-```
+```text
 Usage       : app:draggableTransparentBackground="true"
 Default     : false
 Format      : boolean
@@ -197,7 +197,7 @@ Explanation : If true, draggableBackgroundOpacityMin and draggableBackgroundOpac
 ```
 ***
 > draggableScaleFactor
-```
+```text
 Usage       : app:draggableScaleFactor="0.5"
 Default     : 0.6F
 Format      : float
@@ -206,7 +206,7 @@ Explanation : Higher factor means less scale | (1.0 = no scale) , (0.1 = highest
 ```
 ***
 > draggableScaleEnabled
-```
+```text
 Usage       : app:draggableScaleEnabled="true"
 Default     : true
 Format      : boolean
@@ -215,7 +215,7 @@ Explanation : If false, draggableScaleFactor is useless
 ```
 ***
 > draggableExitAnimation
-```
+```text
 Usage       : app:draggableExitAnimation="@anim/alpha_out_animation"
 Default     : R.anim.draggable_exit_animation
 Format      : reference
@@ -223,7 +223,7 @@ Limitations : -
 ```
 ***
 > draggableFinishOffset
-```
+```text
 Usage       : app:draggableFinishOffset="100dp"
 Default     : 0F
 Format      : dimension
@@ -231,7 +231,7 @@ Limitations : -
 ```
 ***
 > draggableCorners
-```
+```text
 Usage       : app:draggableCorners="topLeft|topRight"
 Default     : none
 Format      : flag
@@ -240,7 +240,7 @@ Explanation : Determine the corners that will have radius with drag event
 ```
 ***
 > draggableDirections
-```
+```text
 Usage       : app:draggableDirections="bottom"
 Default     : none
 Format      : flag
@@ -249,7 +249,7 @@ Explanation : Determine the layout moveable directions
 ```
 ***
 > draggableDistanceAxis
-```
+```text
 Usage       : app:draggableDistanceAxis="y"
 Default     : all
 Format      : flag
@@ -259,7 +259,7 @@ Explanation : Determine which axis should be used for distance calculation
 
 * **In Class Attributes**
 
-```
+```kotlin
 val layout = findViewById<DraggableScrollViewLayout>(R.id.root)
 
 layout.setConfig()
@@ -293,7 +293,7 @@ For major changes, please open an issue first to discuss what you would like to 
 
 ## License
 
-```
+```text
 MIT License
 
 Copyright (c) 2020 Fırat Deniz Avşar, Connected2.me
