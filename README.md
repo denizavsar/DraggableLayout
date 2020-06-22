@@ -1,6 +1,13 @@
 # Draggable XML Layout
 
-This library provides you to flexibility of draggable activities like instagram story, image display etc.
+This library provides you to flexibility of draggable activities like instagram story, image display, bottom sheet etc.
+
+<p align="center">
+    <img src="https://github.com/denizavsar/DraggableLayout/blob/master/art/story.gif" width="180" height="320">
+    <img src="https://github.com/denizavsar/DraggableLayout/blob/master/art/scroll.gif" width="180" height="320">
+    <img src="https://github.com/denizavsar/DraggableLayout/blob/master/art/bottom.gif" width="180" height="320">
+    <img src="https://github.com/denizavsar/DraggableLayout/blob/master/art/image.gif" width="180" height="320">
+</p>
 
 ## Installation
 
