@@ -378,7 +378,7 @@ class DraggableFrameLayout @JvmOverloads constructor(
                 .scaleY(1F)
                 .setDuration(RESET_ANIMATION_DURATION)
                 .setListener(object : SimpleAnimatorListener() {
-                    override fun onAnimationEnd(animation: Animator?) {
+                    override fun onAnimationEnd(p0: Animator) {
                         mDragListener?.onDragFinished()
                     }
                 })
