@@ -21,7 +21,7 @@ Use `DraggableScrollViewLayout` for your activities that contain scrollable cont
 ## Installation
 
 ```groovy
-implementation "com.github.denizavsar:DraggableLayout:5.1.1"
+implementation "com.github.denizavsar:DraggableLayout:7.0.0"
 ```
 
 ## Usage
